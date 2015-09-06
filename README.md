@@ -49,7 +49,7 @@ $bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 
 ```
 Start a consumer and listens to the topic
 ```
-bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odlmsg --from-beginning
+$bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odlmsg --from-beginning
 ```
 
 ######Step 5: Follow the ODL EBK online tutorial to explort the functionality 
