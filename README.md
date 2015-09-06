@@ -4,11 +4,11 @@
 
 ##Current status
 The development so far provides a PoC implementation based on a sample eventsource from the coretutorial ODL Lithium 0.3.0 (distribution-karaf-0.3.0-Lithium). The kafka configurations are hardcoded by using the following default values:
-```metadata.broker.list=localhost:9082```
-```producer.type=sync```
-```compression.codec=none```
-```serializer.class=kafka.serializer.DefaultEncoder```
-```topic=odlmsg```
+`metadata.broker.list=localhost:9082`
+`producer.type=sync`
+`compression.codec=none`
+`serializer.class=kafka.serializer.DefaultEncoder`
+`topic=odlmsg`
 
 ##Prerequiste
 In order to run the PoC implementation, you will need to install Kafka (0.8.*) in single node mode on your machine. Details on Kafka installation can be found at http://kafka.apache.org/documentation.html#quickstart. 
@@ -18,12 +18,12 @@ For those intended to deploy the PoC plugin to a pre-existed ODL container, you 
 ##Quick Start
 ######Step 1: Clone the code using the URL of this page. 
 ######Step 2: Build from source
-```$cd odl-kafka-plugin/hweventsource```
-```$mvn clean install -Dcheckstyle.skip=true -DskipTests=true```
+`$cd odl-kafka-plugin/hweventsource`
+`$mvn clean install -Dcheckstyle.skip=true -DskipTests=true`
 ######Step 3: Start ODL container
-```$./karaf/target/assembly/bin/karaf
+`$./karaf/target/assembly/bin/karaf`
 You can verify the installation of all modules by running the command from ODL console as follows:
-```opendaylight-user@root>feature:list | grep 'hwevent'```
+`opendaylight-user@root>feature:list | grep 'hwevent'`
 ```odl-hweventsource-api             | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: api```              
 ```odl-hweventsource                 | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource```                     
 ```odl-hweventsource-rest            | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: REST```             
