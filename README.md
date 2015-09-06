@@ -18,7 +18,7 @@ For those intended to deploy the PoC plugin to a pre-existed ODL container, you 
 ##Quick Start
 ######Step 1: Clone the code using the URL of this page. 
 ######Step 2: Build from source
-`$cd odl-kafka-plugin/hweventsource`
+```$cd odl-kafka-plugin/hweventsource```
 `$mvn clean install -Dcheckstyle.skip=true -DskipTests=true`
 ######Step 3: Start ODL container
 `$./karaf/target/assembly/bin/karaf`
