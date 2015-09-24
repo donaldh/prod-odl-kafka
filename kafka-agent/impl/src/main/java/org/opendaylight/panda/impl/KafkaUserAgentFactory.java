@@ -67,7 +67,8 @@ public class KafkaUserAgentFactory implements DataTreeChangeListener<KafkaProduc
         {
             LOG.debug("in close()");
         }
-        
+        kafkaUserAgent.close();
+        kafkaProducerConfigReg.close();
     }
 
     

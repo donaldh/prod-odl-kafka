@@ -26,7 +26,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.10.2_1</bundle>
     <bundle dependency='true'>mvn:org.apache.zookeeper/zookeeper/3.4.5</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.kafka_2.10/0.8.1_1</bundle>
-    
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.avro/1.7.7_1</bundle>
+    <bundle dependency='true'>mvn:com.thoughtworks.paranamer/paranamer/2.6.1</bundle>
+    <bundle dependency='true'>mvn:org.apache.commons/commons-compress/1.5</bundle>
+    <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-core-asl/1.9.13</bundle>
+    <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-mapper-asl/1.9.13</bundle>
+    <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/1.1.1.6</bundle>
+    <!--bundle dependency='true'>mvn:net.jpountz.lz4/lz4/1.2.0</bundle-->
+    <!--bundle dependency='true'>mvn:org.hamcrest/hamcrest-core/1.3</bundle-->
+    <!--bundle dependency='true'>mvn:jline/jline/0.9.94</bundle-->
+    <!--bundle dependency='true'>mvn:io.netty/netty/3.7.0.Final</bundle-->
     <bundle>mvn:org.opendaylight.panda/kafka-agent-impl/${project.version}</bundle>
     <configfile finalname="${configfile.directory}/kafka-agent.xml">mvn:org.opendaylight.panda/kafka-agent-impl/${project.version}/xml/config</configfile>
   </feature>

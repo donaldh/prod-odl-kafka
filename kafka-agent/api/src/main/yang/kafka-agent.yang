@@ -87,7 +87,7 @@ module kafka-agent {
             mandatory true;
         }
 
-        leaf dp-message-source {
+        leaf dp-message-source-xpath {
             type string;
             config true;
             mandatory true;
@@ -114,17 +114,12 @@ module kafka-agent {
             config true;
             mandatory false;
         }
+    
+        leaf default-host-ip {
+            type string;
+            config true;
+            mandatory false;
+        }
         
-        leaf avro-schema-id {
-            type uint32;
-            config true;
-            mandatory false;
-        }
-
-        leaf avro-kafka-message-header {
-            type boolean;
-            config true;
-            mandatory false;
-        }
     }//Container
 }
