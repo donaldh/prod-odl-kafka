@@ -2,3 +2,6 @@
 /kafka-agent/impl/target/
 /kafka-agent/karaf/target/
 /kafka-agent/features/target/
+/hweventsource/api/target/
+/hweventsource/impl/target/
+/hweventsource/uagent/target/

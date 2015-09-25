@@ -34,14 +34,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <feature version="${project.version}">odl-hweventsource</feature>
     <feature version="${mdsal.version}">odl-restconf</feature>
   </feature>
-  
-  <feature name='odl-hweventsource-ui' version='${project.version}' description='OpenDaylight :: hweventsource :: UI'>
-    <feature version="${project.version}">odl-hweventsource-rest</feature>
-    <feature version="${project.version}">odl-hweventsource-uagent</feature>
-    <feature version="${mdsal.version}">odl-mdsal-apidocs</feature>
-    <feature version="${mdsal.version}">odl-mdsal-xsql</feature>
-  </feature> 
-
   <feature name='odl-hweventsource-uagent' version='${project.version}' description='OpenDaylight :: hweventsource :: UserAgent'>
     <feature version="${mdsal.version}">odl-message-bus</feature>  
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
