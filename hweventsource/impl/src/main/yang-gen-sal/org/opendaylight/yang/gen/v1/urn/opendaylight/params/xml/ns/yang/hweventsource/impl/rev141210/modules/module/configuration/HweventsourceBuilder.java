@@ -1,18 +1,18 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.impl.rev141210.modules.module.configuration;
-import org.opendaylight.yangtools.yang.binding.AugmentationHolder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.impl.rev141210.modules.module.configuration.hweventsource.Broker;
-import java.util.HashMap;
-import org.opendaylight.yangtools.concepts.Builder;
-import java.util.ArrayList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.impl.rev141210.modules.module.configuration.hweventsource.DomBroker;
 import com.google.common.collect.Range;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.impl.rev141210.modules.module.configuration.hweventsource.EventSourceRegistry;
-import java.math.BigInteger;
-import java.util.List;
 import java.util.Collections;
 import java.util.Map;
+import java.util.HashMap;
+import org.opendaylight.yangtools.yang.binding.AugmentationHolder;
+import java.math.BigInteger;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.impl.rev141210.modules.module.configuration.hweventsource.DomBroker;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.impl.rev141210.modules.module.configuration.hweventsource.Broker;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.concepts.Builder;
+import java.util.ArrayList;
+import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.impl.rev141210.modules.module.configuration.hweventsource.EventSourceRegistry;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
 
 
 /**

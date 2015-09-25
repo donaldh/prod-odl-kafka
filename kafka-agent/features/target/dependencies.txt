@@ -68,8 +68,8 @@ The following files have been resolved:
    com.lmax:disruptor:jar:3.3.0:runtime
    org.opendaylight.controller:config-persister-impl:jar:0.3.0-Lithium:runtime
    org.codehaus.jackson:jackson-mapper-asl:jar:1.9.13:compile
+   com.thoughtworks.paranamer:paranamer:jar:2.6.1:compile
    org.opendaylight.yangtools:binding-data-codec:jar:0.7.0-Lithium:compile
-   com.thoughtworks.paranamer:paranamer:jar:2.3:compile
    org.opendaylight.controller:features-protocol-framework:xml:features:0.6.0-Lithium:runtime
    org.opendaylight.aaa:aaa-idmlight:jar:0.2.0-Lithium:runtime
    org.ops4j.pax.swissbox:pax-swissbox-lifecycle:jar:1.8.0:test
@@ -91,7 +91,6 @@ The following files have been resolved:
    com.typesafe.akka:akka-actor_2.10:jar:2.3.10:runtime
    org.apache.karaf.deployer:org.apache.karaf.deployer.spring:jar:3.0.3:test
    org.codehaus.plexus:plexus-i18n:jar:1.0-beta-7:test
-   org.xerial.snappy:snappy-java:jar:1.0.5:compile
    org.opendaylight.controller:sal-common:jar:1.2.0-Lithium:compile
    org.opendaylight.aaa:features-aaa:xml:features:0.2.0-Lithium:runtime
    org.apache.geronimo.specs:geronimo-jta_1.1_spec:jar:1.1.1:runtime
@@ -112,6 +111,7 @@ The following files have been resolved:
    org.apache.maven.doxia:doxia-module-xhtml:jar:1.0:test
    org.ops4j.base:ops4j-base-store:jar:1.5.0:test
    org.ops4j.base:ops4j-base-exec:jar:1.5.0:test
+   io.netty:netty:jar:3.7.0.Final:compile
    org.opendaylight.aaa:aaa-authn-sts:jar:0.2.0-Lithium:runtime
    org.opendaylight.controller:netconf-monitoring:jar:0.3.0-Lithium:runtime
    org.opendaylight.controller:config-manager:jar:0.3.0-Lithium:runtime
@@ -167,6 +167,7 @@ The following files have been resolved:
    org.glassfish.jersey.ext:jersey-proxy-client:jar:2.0:runtime
    org.sonatype.aether:aether-impl:jar:1.13.1:test
    org.opendaylight.yangtools.model:opendaylight-l2-types:jar:2013.08.27.7-Lithium:runtime
+   org.apache.commons:commons-compress:jar:1.5:compile
    org.ops4j.pax.tinybundles:tinybundles:jar:2.1.0:test
    org.apache.karaf.features:standard:xml:features:3.0.3:runtime
    org.apache.karaf.bundle:org.apache.karaf.bundle.core:jar:3.0.3:runtime
@@ -174,7 +175,6 @@ The following files have been resolved:
    org.ops4j.base:ops4j-base-spi:jar:1.5.0:test
    net.sf.kxml:kxml2:jar:2.2.2:runtime
    org.opendaylight.aaa:aaa-authn:jar:0.2.0-Lithium:runtime
-   org.apache.commons:commons-compress:jar:1.4.1:compile
    org.apache.maven.doxia:doxia-core:jar:1.0:test
    org.eclipse.persistence:org.eclipse.persistence.core:jar:2.5.2:runtime
    org.opendaylight.controller:protocol-framework:jar:0.6.0-Lithium:runtime
@@ -247,7 +247,6 @@ The following files have been resolved:
    org.ops4j.pax.url:pax-url-wrap:jar:uber:2.3.0:runtime
    com.typesafe.akka:akka-cluster_2.10:jar:2.3.10:runtime
    org.opendaylight.yangtools.model:ietf-inet-types:jar:2010.09.24.7-Lithium:compile
-   io.netty:netty:jar:3.8.0.Final:runtime
    org.apache.maven.doxia:doxia-module-fml:jar:1.0:test
    com.typesafe.akka:akka-testkit_2.10:jar:2.3.10:runtime
    org.opendaylight.controller.samples:clustering-it-config:xml:config:1.2.0-Lithium:runtime
@@ -279,6 +278,7 @@ The following files have been resolved:
    org.opendaylight.controller:sal-binding-broker-impl:jar:1.2.0-Lithium:runtime
    org.eclipse.xtext:org.eclipse.xtext.xbase.lib:jar:2.7.3:compile
    org.opendaylight.controller:yang-jmx-generator:jar:0.3.0-Lithium:runtime
+   org.xerial.snappy:snappy-java:jar:1.1.1.6:compile
    org.apache.maven.wagon:wagon-file:jar:1.0-beta-7:test
    org.apache.maven.wagon:wagon-http:jar:2.8:test
    com.google.collections:google-collections:jar:1.0:test
@@ -316,6 +316,7 @@ The following files have been resolved:
    com.typesafe.akka:akka-remote_2.10:jar:2.3.10:runtime
    biz.aQute.bnd:bndlib:jar:2.3.0:runtime
    org.glassfish.hk2.external:javax.inject:jar:2.1.88:runtime
+   net.jpountz.lz4:lz4:jar:1.2.0:compile
    org.bouncycastle:bcprov-jdk15on:jar:1.52:runtime
    org.opendaylight.controller:shutdown-impl:jar:0.3.0-Lithium:runtime
    org.apache.karaf.shell:org.apache.karaf.shell.table:jar:3.0.3:runtime

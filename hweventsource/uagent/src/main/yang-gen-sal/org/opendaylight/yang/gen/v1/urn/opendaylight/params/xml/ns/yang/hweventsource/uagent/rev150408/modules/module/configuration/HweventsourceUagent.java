@@ -1,9 +1,9 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.uagent.rev150408.modules.module.configuration;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.uagent.rev150408.modules.module.configuration.hweventsource.uagent.Broker;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.module.Configuration;
-import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.uagent.rev150408.modules.module.configuration.hweventsource.uagent.DomBroker;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.uagent.rev150408.modules.module.configuration.hweventsource.uagent.Broker;
+import org.opendaylight.yangtools.yang.common.QName;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.controller.config.rev130405.modules.module.Configuration;
 import org.opendaylight.yangtools.yang.binding.Augmentable;
 
 

@@ -1,10 +1,10 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.api.rev150408;
-import java.io.Serializable;
-import java.beans.ConstructorProperties;
+import com.google.common.collect.Range;
 import com.google.common.base.Preconditions;
+import java.io.Serializable;
 import java.math.BigInteger;
 import java.util.List;
-import com.google.common.collect.Range;
+import java.beans.ConstructorProperties;
 
 
 public class SourceIdentifier

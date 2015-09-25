@@ -1,15 +1,15 @@
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.hweventsource.api.rev150408;
-import org.opendaylight.yangtools.yang.binding.Augmentation;
-import org.opendaylight.yangtools.yang.binding.AugmentationHolder;
+import com.google.common.collect.Range;
+import java.util.Collections;
+import java.util.Map;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.AugmentationHolder;
 import java.util.HashMap;
 import org.opendaylight.yangtools.concepts.Builder;
 import java.util.ArrayList;
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Collections;
-import com.google.common.collect.Range;
-import java.util.Map;
+import org.opendaylight.yangtools.yang.binding.Augmentation;
 
 
 /**
