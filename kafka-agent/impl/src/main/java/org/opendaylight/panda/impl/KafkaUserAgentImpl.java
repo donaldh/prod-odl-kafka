@@ -5,15 +5,22 @@
  */
 package org.opendaylight.panda.impl;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.Properties;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
@@ -38,6 +45,9 @@ import org.opendaylight.yangtools.yang.data.api.schema.AnyXmlNode;
 import org.opendaylight.yangtools.yang.model.api.SchemaPath;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  *
@@ -91,47 +101,72 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         try{
             if (producer!=null)
             {
-                String messageSource="";
-                long timestamp=System.currentTimeMillis();
-                String hostIp=DEFAULT_HOST_IP;
+                String messageSource=null;
+                Long timestamp = null;
+                String hostIp=null;
 
                 //processing message
-
-                if (messageSourceXPath == null)
+                
+                final String rawdata = this.parsePayLoad(notification);
+                
+                
+                if (messageSourceXPath != null)
                 {
-                    LOG.info("no message source xpath specified, use the node-id by default.");
+                    LOG.info("evaluating " + messageSourceXPath + " against message payload...");
+                    messageSource = this.evaluate(rawdata, messageSourceXPath);
+                }
+                
+                if (messageSource == null)
+                {
+                    LOG.info("no message source xpath specified or invalid xpath statement. Use the node-id by default.");
                     final String nodeId = notification.getBody().getChild(EVENT_SOURCE_NODE).get().getValue().toString();
                     messageSource = nodeId;
-                    LOG.info("src = " + messageSource);
                 }
+                
+                LOG.info("src = " + messageSource);
 
-                if (timestampXPath == null)
+                if (timestampXPath != null)
                 {
-                    LOG.info("no timestampe xpath specified, use the ODL system time by default");
-                    timestamp = System.currentTimeMillis();
-                    LOG.info("timestamp = " + timestamp);
+                    LOG.info("evaluating " + timestampXPath + " against message payload ...");
+                    timestamp = Long.valueOf(this.evaluate(rawdata, timestampXPath));
+                    
                 }
+                
+                if (timestamp == null)
+                {
+                    LOG.info("no timestampe xpath specified or invalid xpath statement. Use the system time by default");
+                    timestamp = System.currentTimeMillis();
+                }
+                
+                LOG.info("timestamp = " + timestamp);
 
-                if (hostIpXPath == null)
+                
+                if (hostIpXPath != null)
+                {
+                    LOG.info("evaluating " + hostIpXPath + " against message payload ...");
+                    hostIp = this.evaluate(rawdata, hostIpXPath);
+                }
+                
+                if (hostIp == null)
                 {
                     LOG.info("not host ip xpath specified, use the ODL host ip by default");
                     hostIp = DEFAULT_HOST_IP;
-                    LOG.info("host-ip = " + hostIp);
+                    
                 }
-
-                final String rawdata = this.parsePayLoad(notification);
+                LOG.info("host-ip = " + hostIp);
+                
 
                 LOG.info("about to send message to Kafka ...");
                 KeyedMessage<String, byte[]> keyedMessage=null;
                 if (schema == null)
                 {
                     LOG.info("sending data without serialization.");
-                    keyedMessage = new KeyedMessage<String, byte[]>(topic, rawdata.getBytes());
+                    keyedMessage = new KeyedMessage<>(topic, rawdata.getBytes());
                 }
                 else
                 {
                     LOG.info("sending data using avro serialisation.");
-                    keyedMessage = new KeyedMessage<String, byte[]>(topic, encode(timestamp, hostIp, messageSource, rawdata));
+                    keyedMessage = new KeyedMessage<>(topic, encode(timestamp, hostIp, messageSource, rawdata));
                     /*
                     GenericRecord srec = new GenericData.Record(schema);
                     srec.put("src", messageSource);
@@ -206,7 +241,6 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         }catch(Exception ex)
         {
             LOG.error(ex.getMessage());
-            ex.printStackTrace();
             throw new RuntimeException(ex);
             
         }
@@ -229,7 +263,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         return out.toByteArray();
     }
     
-    private static ProducerConfig createProducerConfig(KafkaProducerConfig configuration) {
+    private static ProducerConfig createProducerConfig(KafkaProducerConfig configuration) throws Exception {
         if (LOG.isDebugEnabled())
         {
             LOG.debug("in createProducerConfig()");
@@ -247,7 +281,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         //Long avroSchemaId = configuration.getAvroSchemaId();
         
         // Mandatory ones
-        try {
+        //try {
             if (brokerList == null)
             {
                 throw new Exception("metadata-broker-list is a mandatory configuration. Kafka producer is not intialised.");
@@ -394,11 +428,11 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
             props.put(""+Constants.PROP_PRODUCER_AS_Q_TIMEOUT,      mainConfig.getProperty(Constants.PROP_PRODUCER_AS_Q_TIMEOUT));
             props.put(""+Constants.PROP_PRODUCER_AS_Q_BATCH_MSG,    mainConfig.getProperty(Constants.PROP_PRODUCER_AS_Q_BATCH_MSG));
         }*/
-        } 
-        catch (Exception ex) {
-            LOG.error(ex.getMessage());
-            throw new RuntimeException("Unable to instantiate kafka producer", ex);
-        }
+        //} 
+        //catch (Exception ex) {
+        //    LOG.error(ex.getMessage());
+        //    throw new RuntimeException("Unable to instantiate kafka producer", ex);
+        //}
         
     }
     
@@ -410,6 +444,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
             LOG.debug("in parsePayLoad");
         }
         final AnyXmlNode encapData = (AnyXmlNode) notification.getBody().getChild(PAYLOAD_NODE).get();
+        
         final StringWriter writer = new StringWriter();
         final StreamResult result = new StreamResult(writer);
         final TransformerFactory tf = TransformerFactory.newInstance();
@@ -423,4 +458,33 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         writer.flush();
         return writer.toString();
     }
+    
+    private static Document loadXmlFromString (String xml) throws Exception
+    {
+        DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
+        fac.setNamespaceAware(false);
+        DocumentBuilder builder = fac.newDocumentBuilder();
+        Document doc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
+        return doc;
+    }
+    
+    private String evaluate (String payload, String xpathStmt) throws Exception
+    {
+        String result = null;
+        
+        Document doc = loadXmlFromString(payload);
+
+        XPath xpath = XPathFactory.newInstance().newXPath();
+        NodeList nodeList = (NodeList) xpath.evaluate(xpathStmt, doc, XPathConstants.NODESET);
+        System.out.println(nodeList.getLength());
+        if (nodeList.getLength()>0)
+        {
+            Node node = nodeList.item(0);
+            result = node.getTextContent();
+        }
+        
+        return result;
+    }
+    
+    
 }
