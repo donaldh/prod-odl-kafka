@@ -10,13 +10,15 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -33,6 +35,7 @@ import org.apache.avro.io.EncoderFactory;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotification;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.messagebus.eventaggregator.rev141202.TopicId;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.messagebus.eventaggregator.rev141202.TopicNotification;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev150922.KafkaProducerConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev150922.KafkaProducerConfig.CompressionCodec;
@@ -61,12 +64,11 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
 
     private final NodeIdentifier EVENT_SOURCE_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "node-id"));
     private final NodeIdentifier PAYLOAD_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "payload"));
-
+    private static final NodeIdentifier TOPIC_ID_ARG = new NodeIdentifier(QName.create(TopicNotification.QNAME, "topic-id"));
+    
     private final SchemaPath TOPIC_NOTIFICATION_PATH = SchemaPath.create(true, TopicNotification.QNAME);
 
     private final static String DEFAULT_AVRO_SCHEMA = "dataplatform-raw.avsc";
-    
-    //private final static long DEFAULT_AVRO_SCHEMA_ID = 23;
     
     private final String DEFAULT_HOST_IP;
 
@@ -79,6 +81,8 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
     private final String messageSourceXPath;
     
     private final String topic;
+    
+    private final Set<String> registeredTopics = new HashSet<>();
     
     private static Schema schema;
 
@@ -98,8 +102,33 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
 
         LOG.info("Notification received.");
         
+        boolean isAcceptable = false;
+        
+        if (registeredTopics.isEmpty())
+        {
+            isAcceptable=true;
+        }
+        
+        if (!isAcceptable)
+        {
+            LOG.info("topic filters are not empty; applying them now...");
+            //check topic against filter list
+            if(notification.getBody().getChild(TOPIC_ID_ARG).isPresent()){
+                TopicId topicId = (TopicId) notification.getBody().getChild(TOPIC_ID_ARG).get().getValue();
+                if (topicId != null)
+                {
+                    LOG.info("topic is parsed: " + topicId.getValue());
+                    if(registeredTopics.contains(topicId.getValue())){
+                        isAcceptable = true;
+                        LOG.info("Topic accepted.");
+                    }
+                }
+            }
+        }
+        
         try{
-            if (producer!=null)
+            
+            if (producer!=null && isAcceptable)
             {
                 String messageSource=null;
                 Long timestamp = null;
@@ -219,7 +248,12 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         LOG.info("topic -> " + configuration.getTopic());
         
         try{
-            
+            String topicSubscriptions = configuration.getEventTopicId();
+            if (topicSubscriptions !=null & !topicSubscriptions.isEmpty())
+            {
+                LOG.info("adding topic subscriptions : " + topicSubscriptions);
+                registeredTopics.addAll(Arrays.asList(topicSubscriptions.split(", ")));
+            }
             topic = configuration.getTopic();
             if (topic ==null)
             {

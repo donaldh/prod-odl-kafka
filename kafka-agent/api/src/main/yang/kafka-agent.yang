@@ -120,6 +120,15 @@ module kafka-agent {
             config true;
             mandatory false;
         }
+
+        
+        leaf event-topic-id{
+            type string;
+            config true;
+            description "ODL event topic filter; if not set, all topics are valid";
+            mandatory false;
+        }
+
         
     }//Container
 }
