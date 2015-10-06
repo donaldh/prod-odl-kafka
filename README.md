@@ -8,6 +8,11 @@ The `odl-kafka-plugin` has been development using Lithium maven artetype and tes
 ######Step 1: Clone source code
 
 ######Step 2: Build from source
+
+```
+https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup#Edit_your_.7E.2F.m2.2Fsettings.xml
+```
+
 ```
 $cd hweventsource/
 hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
