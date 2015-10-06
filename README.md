@@ -87,7 +87,7 @@ You should see the output as:
 ######Step 7: Start event source to generate messages.
 Run the following curl command to trigger the sample event source. 
 ```
-$curl --user admiPOST http://localhost:8181/restconf/operations/event-aggregator:create-topic --header "Content-Type:application/json" --data '{ "event-aggregator:input": {"notification-pattern": "**", "node-id-pattern":"*"}}'
+$curl --user admin:admin --request POST http://localhost:8181/restconf/operations/event-aggregator:create-topic --header "Content-Type:application/json" --data '{ "event-aggregator:input": {"notification-pattern": "**", "node-id-pattern":"*"}}'
 ```
 If successful, you should be able to see a topic-id is generated, for exmaple:
 ```
