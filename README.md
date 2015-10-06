@@ -33,7 +33,7 @@ odl-hweventsource-ui              | 1.0-Lithium      | x         | odl-hweventso
 ```
 ######Step 4: Deploy kafka agent plugin
 ```
-$cp kafka-agent/feature/target/kafka-agent-features-1.0.0-Lithium.kar ./hweventsource/karaf/target/assembly/deploy/
+$cp kafka-agent/features/target/kafka-agent-features-1.0.0-Lithium.kar ./hweventsource/karaf/target/assembly/deploy/
 ```
 
 `kafka-agent` should then be automatically deployed to the ODL container. To verify the success of the deployment, run `feature-list` command from ODL console, and you should see outputs as below.
