@@ -249,7 +249,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         
         try{
             String topicSubscriptions = configuration.getEventTopicId();
-            if (topicSubscriptions !=null & !topicSubscriptions.isEmpty())
+            if (topicSubscriptions !=null && !topicSubscriptions.isEmpty())
             {
                 LOG.info("adding topic subscriptions : " + topicSubscriptions);
                 registeredTopics.addAll(Arrays.asList(topicSubscriptions.split(", ")));
