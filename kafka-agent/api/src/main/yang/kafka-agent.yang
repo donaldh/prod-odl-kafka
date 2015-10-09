@@ -56,10 +56,6 @@ module kafka-agent {
                     value 2;
                     description "";
                 }
-                enum "lz4" {
-                    value 3;
-                    description "";
-                }
             }
             config true;
             mandatory true;
@@ -87,8 +83,12 @@ module kafka-agent {
             mandatory true;
         }
 
+        
+        
+
         leaf dp-message-source-xpath {
             type string;
+            description "set xpath statement to extract message source message payload";
             config true;
             mandatory true;
         }
@@ -115,6 +115,13 @@ module kafka-agent {
             mandatory false;
         }
     
+        leaf default-message-source {
+            type string;
+            description "set default message source that would apply to all ETB messages";
+            config true;
+            mandatory false;
+        }
+
         leaf default-host-ip {
             type string;
             config true;
@@ -122,7 +129,7 @@ module kafka-agent {
         }
 
         
-        leaf event-topic-id{
+        leaf event-subscriptions{
             type string;
             config true;
             description "ODL event topic filter; if not set, all topics are valid";

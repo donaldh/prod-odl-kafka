@@ -80,6 +80,8 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
     
     private final String messageSourceXPath;
     
+    private final String defaultMessageSource;
+    
     private final String topic;
     
     private final Set<String> registeredTopics = new HashSet<>();
@@ -143,6 +145,11 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                 {
                     LOG.info("evaluating " + messageSourceXPath + " against message payload...");
                     messageSource = this.evaluate(rawdata, messageSourceXPath);
+                }
+                
+                if (messageSource == null)
+                {
+                    messageSource = this.defaultMessageSource;
                 }
                 
                 if (messageSource == null)
@@ -248,7 +255,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         LOG.info("topic -> " + configuration.getTopic());
         
         try{
-            String topicSubscriptions = configuration.getEventTopicId();
+            String topicSubscriptions = configuration.getEventSubscriptions();
             if (topicSubscriptions !=null && !topicSubscriptions.isEmpty())
             {
                 LOG.info("adding topic subscriptions : " + topicSubscriptions);
@@ -262,6 +269,8 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
             timestampXPath = configuration.getDpTimestampXpath();
             hostIpXPath = configuration.getDpMessageHostIpXpath();
             messageSourceXPath = configuration.getDpMessageSourceXpath();
+            defaultMessageSource = configuration.getDefaultMessageSource();
+            
             if (configuration.getDefaultHostIp()!=null)
             {
                 DEFAULT_HOST_IP = configuration.getDefaultHostIp();
@@ -377,8 +386,8 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                         break;
                 case 2: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "snappy");
                         break;
-                case 3: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "lz4");
-                        break;
+                //case 3: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "lz4");
+                //        break;
                 default: throw new Exception("Unrecognised compression encode type " + compCodec.getIntValue()+". Kafka producer is not intialised.");
             }
             
