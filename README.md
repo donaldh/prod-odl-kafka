@@ -112,6 +112,7 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 | parameter     | description                   | data type |         examples      | default | mandatory |
 |:--------------|:------------------------------|:----------|:----------------------|:--------|:----------|
 | metadata-broker-list| The Kafka bootstrapping broker list | string |-|Yes|
+|producer-type |Instrument Kafka whether messages are sent asynchronously or not in the background thread |enum	|sync/async|sync|Yes|
 
 
    
