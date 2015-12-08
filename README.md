@@ -70,7 +70,7 @@ $bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odlmsg --from-
 ```
 $ curl --user admin:admin 
        --request PUT http://localhost:8080/restconf/config/kafka-agent:kafka-producer-config 
-       --data '{kafka-producer-config: {metadata-broker-list: "127.0.0.1:9092",topic: "test",producer-type: "sync", compression-codec: "none", message-serialization: "raw"}}' 
+       --data '{kafka-producer-config: {metadata-broker-list: "127.0.0.1:9092",topic: "odlmsg",producer-type: "sync", compression-codec: "none", message-serialization: "raw", avro-schema-namespace:"com.example.project"}}' 
        --header "Content-Type:application/yang.data+json"
 ```
 To verify configurations are set properly, run:
