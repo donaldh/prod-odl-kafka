@@ -117,7 +117,7 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 |topic|kafka topic name|string|"snmp"|-|Yes|
 |message-serialization |Kafka message serialisation type|enum|	raw/avro|raw|Yes|
 |avro-schema-namespace|avro schema namespace|string|com.example.project|%s|Yes|
-|event-subscriptions |List of ODL topic subscriptions (if not set, kafka plugin listens to all ETB topics)|string|"<topic-id-1>,<topic-id-2>"|-|No|
+|event-subscriptions |List of ODL topic subscriptions (if not set, kafka plugin listens to all ETB topics)|string|"[topic-id-1],[topic-id-2]"|-|No|
 |default-host-ip |Default host ip address of event source (if not set, default value is set as 0.0.0.0)|string|127.0.0.1|	|0.0.0.0|No|
 |default-message-source|Default event source name |string|bpg-ls|<node-id> value|No|
 |timestamp-xpath|Xpath statement used to extract timestamp from ODL message payload (if not set, the ODL system time is used by default)|string|//timestamp|ODL system timestamp|No|
