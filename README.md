@@ -106,11 +106,13 @@ Meanwhile keep an eye on the Kafka consumer console, you should see messages str
 
 
 ##Configurations
-| Left-Aligned  | Center Aligned  | Right Aligned |
-| :------------ |:---------------:| -----:|
-| col 3 is      | some wordy text | $1600 |
-| col 2 is      | centered        |   $12 |
-| zebra stripes | are neat        |    $1 |
+Kafka plugin needs to be configured before starting consuming ETB messages. The list of configuration parameters are given below.
+
+
+| parameter     | description                   | data type |         examples      | default | mandatory |
+| :------------ |:---------------------------- :| :------- :| :------------------- :| :----- :| :------- :|
+| metadata-broker-list| The Kafka bootstrapping broker list | string |-|Yes|
+
 
    
 
