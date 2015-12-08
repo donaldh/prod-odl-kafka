@@ -105,8 +105,12 @@ Meanwhile keep an eye on the Kafka consumer console, you should see messages str
 ```
 
 
-##Sending data to PaNDA
-If you would like to share data to PaNDA, Cisco big data analytics plaform, you will need to contact PaNDA team and request connectivity settings for configurating Kafka-plugin.
+##Configurations
+| Left-Aligned  | Center Aligned  | Right Aligned |
+| :------------ |:---------------:| -----:|
+| col 3 is      | some wordy text | $1600 |
+| col 2 is      | centered        |   $12 |
+| zebra stripes | are neat        |    $1 |
 
    
 
