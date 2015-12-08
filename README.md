@@ -110,7 +110,7 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 
 
 | parameter     | description                   | data type |         examples      | default | mandatory |
-| :------------ |:---------------------------- :| :------- :| :------------------- :| :----- :| :------- :|
+|:--------------|:------------------------------|:----------|:----------------------|:--------|:----------|
 | metadata-broker-list| The Kafka bootstrapping broker list | string |-|Yes|
 
 
