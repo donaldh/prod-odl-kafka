@@ -113,6 +113,16 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 |:--------------|:------------------------------|:----------|:----------------------|:--------|:----------|
 | metadata-broker-list| The Kafka bootstrapping broker list | string |-|Yes|
 |producer-type |Instrument Kafka whether messages are sent asynchronously or not in the background thread |enum	|sync/async|sync|Yes|
+|compression-codec |Compression codec for all messages|enum|none/gzip/snappy|none|Yes|
+|topic|kafka topic name|string|"snmp"|-|Yes|
+|message-serialization |Kafka message serialisation type|enum|	raw/avro|raw|Yes|
+|avro-schema-namespace|avro schema namespace|string|com.example.project|%s|Yes|
+|event-subscriptions |List of ODL topic subscriptions (if not set, kafka plugin listens to all ETB topics)|string|"<topic-id-1>,<topic-id-2>"|-|No|
+|default-host-ip |Default host ip address of event source (if not set, default value is set as 0.0.0.0)|string|127.0.0.1|	|0.0.0.0|No|
+|default-message-source|Default event source name |string|bpg-ls|<node-id> value|No|
+|timestamp-xpath|Xpath statement used to extract timestamp from ODL message payload (if not set, the ODL system time is used by default)|string|//timestamp|ODL system timestamp|No|
+|message-host-ip-xpath|XPath statement used to extract host-ip value from ODL message payload (if not set, default-host-ip value is used).|string|//hostIP|default-host-ip value if not set|No|
+|message-source-xpath| XPath statement used to extract message source value|	string	|//src|	default-message-source value if set	|No |
 
 
    
