@@ -6,6 +6,9 @@ The `odl-kafka-plugin` has been development using Lithium maven artetype and tes
 
 ##Quick Start
 ######Step 1: Clone source code
+```
+$git clone https://cto-github.cisco.com/CTAO-Team6-Analytics/prod-odl-kafka.git
+```
 
 ######Step 2: Build from source
 
