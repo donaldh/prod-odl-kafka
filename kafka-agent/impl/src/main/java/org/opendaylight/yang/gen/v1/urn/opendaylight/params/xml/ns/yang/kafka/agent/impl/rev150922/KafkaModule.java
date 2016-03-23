@@ -5,7 +5,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
 import org.opendaylight.panda.impl.KafkaUserAgentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * 
+ * @author Xiaoyu Chen
+ */
 public class KafkaModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.impl.rev150922.AbstractKafkaModule {
     
     private static final Logger LOG = LoggerFactory.getLogger(KafkaModule.class);

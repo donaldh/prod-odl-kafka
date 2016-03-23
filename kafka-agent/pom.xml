@@ -10,7 +10,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent</artifactId>
-    <version>1.5.0-Lithium</version>
+    <!--version>1.5.0-Lithium</version-->
+    <version>1.5.1-SNAPSHOT</version>
   </parent>
 
   <groupId>org.opendaylight.panda</groupId>
@@ -22,13 +23,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
-  <modules>
-    <module>api</module>
-    <module>impl</module>
-    <module>karaf</module>
-    <module>features</module>
-    <module>artifacts</module>
-  </modules>
+  <modules></modules>
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
     <plugins>

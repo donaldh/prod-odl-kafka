@@ -519,7 +519,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         NodeList nodeList = (NodeList) xpath.evaluate(xpathStmt, doc, XPathConstants.NODESET);
-        System.out.println(nodeList.getLength());
+        //System.out.println(nodeList.getLength());
         if (nodeList.getLength()>0)
         {
             Node node = nodeList.item(0);

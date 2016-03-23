@@ -9,7 +9,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <version>1.5.0-Lithium</version>
+    <!--version>1.5.0-Lithium</version-->
+    <version>1.5.1-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <groupId>org.opendaylight.panda</groupId>
@@ -21,9 +22,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <maven>3.1.1</maven>
   </prerequisites>
   <properties>
-    <mdsal.version>1.2.0-Lithium</mdsal.version>
+    <!--mdsal.version>1.2.0-Lithium</mdsal.version>
     <yangtools.version>0.7.0-Lithium</yangtools.version>
-    <netconf.version>0.3.0-Lithium</netconf.version>
+    <netconf.version>0.3.0-Lithium</netconf.version-->
+    <mdsal.version>1.2.2-SNAPSHOT</mdsal.version>
+    <yangtools.version>0.7.2-SNAPSHOT</yangtools.version>
+    <netconf.version>0.3.2-SNAPSHOT</netconf.version>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
   </properties>
   <dependencyManagement>
