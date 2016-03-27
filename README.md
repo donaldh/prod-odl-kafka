@@ -1,45 +1,90 @@
-# prod-odl-kafka
-##Overview
-`odl-kafka-plugin` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into such a big-data platform as PaNDA. The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint.
+# prod-odl-kafka (for Kafka version 0.9)
+## Overview
+`prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster. The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint.
 
-The `odl-kafka-plugin` has been development using Lithium maven artetype and tested using ODL Lithium 0.3.0 container (distribution-karaf-0.3.0-Lithium). 
+The `prod-odl-kafka` has been development using Lithium maven artetype and tested against ODL Lithium 0.3.* releases (i.e. Lithium SR1, SR2, SR3, and SR4). 
 
-##Quick Start
-######Step 1: Clone source code
+
+###### Step 1: Clone source code
 ```
 $git clone https://cto-github.cisco.com/CTAO-Team6-Analytics/prod-odl-kafka.git
 ```
 
-######Step 2: Build from source
+###### Step 2: Build from source
+
+In order to make the "build" process work, you will need OpenDayLight dependencies, which are organised as multiple inter-dependent projects within OpenDayLight repositories outside of Maven Central. This is achieved by placing the OpenDayLight `settings.xml` file into your local maven repository (see https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup for more details).
 
 ```
-https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup#Edit_your_.7E.2F.m2.2Fsettings.xml
+# Shortcut command for grabbing settings.xml
+cp -n ~/.m2/settings.xml{,.orig} ; \
+wget -q -O - https://raw.githubusercontent.com/opendaylight/odlparent/master/settings.xml > ~/.m2/settings.xml
 ```
 
+You will also need to check your target Lithium container's version and edit the `<parent>` section of the `odl-kafka-plugin/kafka-agent/impl/pom.xml` file. Below is an example that builds for `Lithium-SR3` release. 
+
 ```
-$cd hweventsource/
-hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
+<parent>
+    <groupId>org.opendaylight.controller</groupId>
+    <artifactId>config-parent</artifactId>
+    <version>0.3.3-Lithium-SR3</version>
+    <relativePath/>
+  </parent>
+```
+
+Now go to `kafka-agent` directory and build.
+
+```
+$cd ../kafka-agent 
+kafka-agent$mvn clean install -Dcheckstyle.skip=true
+```
+
+Run following commands instead if you would like to skip tests:
+
+```
 $cd ../kafka-agent 
 kafka-agent$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
-######Step 3: Start ODL container
+
+######Step 3: Start Karaf container
+
+Start karaf container by running the following command.
+
 ```
-$../hweventsource/karaf/target/assembly/bin/karaf
-```
-You can verify the installation of `hweventsource` modules by running the command from ODL console as follows:
-```
-opendaylight-user@root>feature:list | grep 'hweventsource'
-odl-hweventsource-api             | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: api              
-odl-hweventsource                 | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource                     
-odl-hweventsource-rest            | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: REST             
-odl-hweventsource-ui              | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: UI               
-```
-######Step 4: Deploy kafka agent plugin
-```
-$cp kafka-agent/features/target/kafka-agent-features-1.0.0-Lithium.kar ./hweventsource/karaf/target/assembly/deploy/
+$./karaf/target/assembly/bin/karaf 
 ```
 
-`kafka-agent` should then be automatically deployed to the ODL container. To verify the success of the deployment, run `feature-list` command from ODL console, and you should see outputs as below.
+Once it starts successfully, you should be able to check all the features are deployed automatically. 
+
+```
+   ________                       ________                .__  .__       .__     __       
+    \_____  \ ______   ____   ____ \______ \ _____  ___.__.|  | |__| ____ |  |___/  |_     
+     /   |   \\____ \_/ __ \ /    \ |    |  \\__  \<   |  ||  | |  |/ ___\|  |  \   __\    
+    /    |    \  |_> >  ___/|   |  \|    `   \/ __ \\___  ||  |_|  / /_/  >   Y  \  |      
+    \_______  /   __/ \___  >___|  /_______  (____  / ____||____/__\___  /|___|  /__|      
+            \/|__|        \/     \/        \/     \/\/            /_____/      \/          
+                                                                                           
+
+Hit '<tab>' for a list of available commands
+and '[cmd] --help' for help on a specific command.
+Hit '<ctrl-d>' or type 'system:shutdown' or 'logout' to shutdown OpenDaylight.
+
+opendaylight-user@root>feature:list | grep 'kafka'
+odl-kafka-agent-api               | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent :: api                
+odl-kafka-agent                   | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent                       
+odl-kafka-agent-rest              | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent :: REST               
+odl-kafka-agent-ui                | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent :: UI                 
+opendaylight-user@root>
+```
+
+######Step 4: Deploy to existed ODL container
+
+If you have an existed ODL container, simply copy the `.kar` file to the `deploy` directory. See example below.
+
+```
+$sudo cp kafka-agent/features/target/kafka-agent-features-1.0.0-Lithium.kar /opt/distribution-karaf-0.3.3-Lithium-SR3/deploy/
+```
+
+`prod-odl-kafka` plugin should then be automatically deployed to the ODL container. To verify the success of the deployment, run `feature:list | grep 'kafka' ` command from ODL console, and you should see outputs as below.
 
 ```
 opendaylight-user@root>feature:list | grep 'kafka-agent'
@@ -48,32 +93,75 @@ odl-kafka-agent                   | 1.0.0-Lithium    | x         | odl-kafka-age
 odl-kafka-agent-rest              | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent :: REST               
 odl-kafka-agent-ui                | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent :: UI 
 ```
-######Step 5: Start Zookeeper and Kafka Server
+## Configurations
+Kafka plugin needs to be configured before starting consuming ETB messages. The list of configuration parameters are given below.
+
+
+| parameter     | description                   | data type |         examples      | default | mandatory |
+|:--------------|:------------------------------|:----------|:----------------------|:--------|:----------|
+| kafka-broker-list| The Kafka bootstrapping broker list | string |-|Yes|
+|kafka-producer-type |Instrument Kafka whether messages are sent asynchronously or not in the background thread  (does not apply for kafka version 0.9) |enum	|sync/async|sync|Yes|
+|compression-type |Compression codec for all messages|enum|none/gzip/snappy|none|Yes|
+|kafka-topic|kafka topic name|string|"snmp"|-|Yes|
+|message-serialization |Kafka message serialisation type|enum|	raw/avro|raw|Yes|
+|avro-schema-namespace|avro schema namespace|string|com.example.project|%s|Yes|
+|event-subscriptions |List of ODL topic subscriptions (if not set, kafka plugin listens to all ETB topics)|string|"[topic-id-1],[topic-id-2]"|-|No|
+|default-host-ip |Default host ip address of event source (if not set, default value is set as 0.0.0.0)|string|127.0.0.1|	|0.0.0.0|No|
+|default-message-source|Default event source name |string|bpg-ls|<node-id> value|No|
+|timestamp-xpath|Xpath statement used to extract timestamp from ODL message payload (if not set, the ODL system time is used by default)|string|//timestamp|ODL system timestamp|No|
+|message-host-ip-xpath|XPath statement used to extract host-ip value from ODL message payload (if not set, default-host-ip value is used).|string|//hostIP|default-host-ip value if not set|No|
+|message-source-xpath| XPath statement used to extract message source value|	string	|//src|	default-message-source value if set	|No |
+
+## Test with local Kafka cluster and "Hello World" event source
+
+In order to demonstrate how `prod-odl-kafka` works, the HWEventSource project (https://github.com/opendaylight/coretutorials/tree/master/hweventsource) was used. You will need to follow the instructions to clone and build `HWEventSource` project, and make sure the implementation's build file is configured with appropriate Lithium version as you just did for `prod-odl-kafka` plugin. 
+
+###### build `hweventsource` project
+```
+$cd hweventsource/
+hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
+```
+
+###### deploy `hweventsource` southbound event source
+
+The deployment of `hweventsource` is as simple as copy the .kar file to a target ODL container, either the one comes with `prod-odl-agent` or a standalone distribution container. 
+
+```
+$cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /opt/distribution-karaf-0.3.3-Lithium-SR3/deploy/
+```
+
+You can verify the deployment of `hweventsource` modules by running the command from ODL console as follows:
+```
+opendaylight-user@root>feature:list | grep 'hweventsource'
+odl-hweventsource-api             | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: api              
+odl-hweventsource                 | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource                     
+odl-hweventsource-rest            | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: REST             
+odl-hweventsource-ui              | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: UI               
+```
+
+###### Start local kafka cluster
+
 ```
 $cd $KAFKA_HOME
 $bin/zookeeper-server-start.sh config/zookeeper.properties
 $bin/kafka-server-start.sh config/server.properties
 ```
-Create a 'test' topic
+Create a 'odl-test' topic
 ```
-$bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic test
+$bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic odl-test
 ```
 Start a consumer and listens to the topic
 ```
-$bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odlmsg --from-beginning
+$bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odl-test --from-beginning
 ```
-######Step 6: Congifure `kafka-agent`
-`kafka-agent` is configured using RESTCONF api, and requires four mandatory properties to start kafka message producer:
- * metadata-broker-list: a list of zookeeper endpoints
- * topic: kafka message topic
- * produce-type: sync|async
- * compression-codec: none|gzip|snappy|lz4 (NOTE: lz4 is yet supported, as no appropriate bundle repository found.)
- * message-serialization: raw|avro
+###### Congifure `prod-odl-kafka` plugin
+
+`prod-odl-kafka` is configured using RESTCONF api.
 
 ```
-$ curl --user admin:admin 
-       --request PUT http://localhost:8080/restconf/config/kafka-agent:kafka-producer-config 
-       --data '{kafka-producer-config: {metadata-broker-list: "127.0.0.1:9092",topic: "odlmsg",producer-type: "sync", compression-codec: "none", message-serialization: "raw", avro-schema-namespace:"com.example.project"}}' 
+$ curl --user admin:admin \ 
+       --request PUT http://localhost:8080/restconf/config/kafka-agent:kafka-producer-config \
+       --data '{kafka-producer-config: {kafka-broker-list: "127.0.0.1:9092", kafka-topic: "odl-test", kafka-producer-type: "async", compression-type: "none", message-serialization: "raw", avro-schema-namespace:"com.example.project"}}' \
        --header "Content-Type:application/yang.data+json"
 ```
 To verify configurations are set properly, run:
@@ -84,10 +172,10 @@ $ curl --user admin:admin --request GET http://localhost:8080/restconf/config/ka
 You should see the output as:
 
 ```
-{"kafka-producer-config":{"compression-codec":"none","topic":"test","metadata-broker-list":"127.0.0.1:9092","message-serialization":"raw","producer-type":"sync"}}
+{"kafka-producer-config":{"kafka-producer-type":"async","message-serialization":"raw","kafka-broker-list":"127.0.0.1:9092","avro-schema-namespace":"com.example.project","compression-type":"none","kafka-topic":"odl-test"}}
 ```
 
-######Step 7: Start event source to generate messages.
+###### Start "hello world" event source to generate some messages.
 Run the following curl command to trigger the sample event source. 
 ```
 $curl --user admin:admin --request POST http://localhost:8181/restconf/operations/event-aggregator:create-topic --header "Content-Type:application/json" --data '{ "event-aggregator:input": {"notification-pattern": "**", "node-id-pattern":"*"}}'
@@ -108,24 +196,6 @@ Meanwhile keep an eye on the Kafka consumer console, you should see messages str
 ```
 
 
-##Configurations
-Kafka plugin needs to be configured before starting consuming ETB messages. The list of configuration parameters are given below.
-
-
-| parameter     | description                   | data type |         examples      | default | mandatory |
-|:--------------|:------------------------------|:----------|:----------------------|:--------|:----------|
-| metadata-broker-list| The Kafka bootstrapping broker list | string |-|Yes|
-|producer-type |Instrument Kafka whether messages are sent asynchronously or not in the background thread |enum	|sync/async|sync|Yes|
-|compression-codec |Compression codec for all messages|enum|none/gzip/snappy|none|Yes|
-|topic|kafka topic name|string|"snmp"|-|Yes|
-|message-serialization |Kafka message serialisation type|enum|	raw/avro|raw|Yes|
-|avro-schema-namespace|avro schema namespace|string|com.example.project|%s|Yes|
-|event-subscriptions |List of ODL topic subscriptions (if not set, kafka plugin listens to all ETB topics)|string|"[topic-id-1],[topic-id-2]"|-|No|
-|default-host-ip |Default host ip address of event source (if not set, default value is set as 0.0.0.0)|string|127.0.0.1|	|0.0.0.0|No|
-|default-message-source|Default event source name |string|bpg-ls|<node-id> value|No|
-|timestamp-xpath|Xpath statement used to extract timestamp from ODL message payload (if not set, the ODL system time is used by default)|string|//timestamp|ODL system timestamp|No|
-|message-host-ip-xpath|XPath statement used to extract host-ip value from ODL message payload (if not set, default-host-ip value is used).|string|//hostIP|default-host-ip value if not set|No|
-|message-source-xpath| XPath statement used to extract message source value|	string	|//src|	default-message-source value if set	|No |
 
 
    
