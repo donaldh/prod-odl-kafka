@@ -10,13 +10,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.yangtools</groupId>
     <artifactId>binding-parent</artifactId>
-    <!--version>0.7.0-Lithium</version-->
-    <version>0.7.2-SNAPSHOT</version>
+    <!--version>${yangtools.version}</version-->
+    <version>0.7.3-Lithium-SR3</version>
     <relativePath/>
   </parent>
-
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.panda</groupId>
+  <groupId>org.opendaylight.kafkacluster</groupId>
   <artifactId>kafka-agent-api</artifactId>
   <version>1.0.0-Lithium</version>
   <packaging>bundle</packaging>

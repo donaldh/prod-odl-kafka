@@ -11,13 +11,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <parent>
     <groupId>org.opendaylight.controller</groupId>
     <artifactId>config-parent</artifactId>
-    <!--version>0.3.0-Lithium</version-->
-    <version>0.3.2-SNAPSHOT</version>
+    <version>0.3.3-Lithium-SR3</version>
     <relativePath/>
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.opendaylight.panda</groupId>
+  <groupId>org.opendaylight.kafkacluster</groupId>
   <artifactId>kafka-agent-impl</artifactId>
   <version>1.0.0-Lithium</version>
   <packaging>bundle</packaging>
@@ -30,12 +29,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>kafka-agent-api</artifactId>
       <version>${project.version}</version>
     </dependency>
-    <!-- Testing Dependencies -->
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
+    
     
     <!-- OpenDayLight Lithum Dependencies -->
     <dependency>
@@ -46,18 +40,20 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>messagebus-api</artifactId>
     </dependency>
-    
-    <!-- apache kafka servicemix bundle Dependencies -->
     <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <!--dependency>
         <groupId>org.opendaylight.controller</groupId>
-        <artifactId>messagebus-api</artifactId>
-        <version>1.2.0-Lithium</version>
-    </dependency-->
+        <artifactId>messagebus-spi</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.opendaylight.controller</groupId>
+        <artifactId>config-api</artifactId>
+    </dependency>
+    <dependency>
+        <groupId>org.opendaylight.controller</groupId>
+        <artifactId>sal-binding-config</artifactId>
+    </dependency>
+    <!-- apache kafka servicemix bundle Dependencies -->
+   
     <dependency>
         <groupId>org.apache.servicemix.bundles</groupId>
         <artifactId>org.apache.servicemix.bundles.metrics-core</artifactId>
@@ -65,8 +61,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     </dependency>
     <dependency>
 	<groupId>org.apache.servicemix.bundles</groupId>
-	<artifactId>org.apache.servicemix.bundles.kafka_2.10</artifactId>
-	<version>0.8.1_1</version>
+	<artifactId>org.apache.servicemix.bundles.kafka-clients</artifactId>
+	<version>0.9.0.0_1</version>
     </dependency>
     <dependency>
 	<groupId>org.apache.servicemix.bundles</groupId>
@@ -143,5 +139,23 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 	<artifactId>netty</artifactId>
 	<version>3.7.0.Final</version>
     </dependency>
+    
+    <!-- Testing Dependencies -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
+     <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <scope>test</scope>
+    </dependency>
+    
   </dependencies>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 </project>

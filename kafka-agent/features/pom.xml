@@ -9,11 +9,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>features-parent</artifactId>
-    <!--version>1.5.0-Lithium</version-->
-    <version>1.5.1-SNAPSHOT</version>
+    <version>1.5.0-Lithium</version>
     <relativePath/>
   </parent>
-  <groupId>org.opendaylight.panda</groupId>
+  <groupId>org.opendaylight.kafkacluster</groupId>
   <artifactId>kafka-agent-features</artifactId>
   <version>1.0.0-Lithium</version>
   <name>${project.artifactId}</name>
@@ -22,12 +21,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <maven>3.1.1</maven>
   </prerequisites>
   <properties>
-    <!--mdsal.version>1.2.0-Lithium</mdsal.version>
-    <yangtools.version>0.7.0-Lithium</yangtools.version>
-    <netconf.version>0.3.0-Lithium</netconf.version-->
-    <mdsal.version>1.2.2-SNAPSHOT</mdsal.version>
-    <yangtools.version>0.7.2-SNAPSHOT</yangtools.version>
-    <netconf.version>0.3.2-SNAPSHOT</netconf.version>
+    <!--mdsal.version>1.2.0-Lithium</mdsal.version-->
+    <!--yangtools.version>0.7.0-Lithium</yangtools.version-->
+    <!--netconf.version>0.3.0-Lithium</netconf.version-->
+    <mdsal.version>1.2.3-Lithium-SR3</mdsal.version>
+    <yangtools.version>0.7.3-Lithium-SR3</yangtools.version>
+    <netconf.version>0.3.3-Lithium-SR3</netconf.version>
     <configfile.directory>etc/opendaylight/karaf</configfile.directory>
   </properties>
   <dependencyManagement>
@@ -62,6 +61,14 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>features-restconf</artifactId>
+      <classifier>features</classifier>
+      <version>${mdsal.version}</version>
+      <type>xml</type>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>features-netconf-connector</artifactId>
       <classifier>features</classifier>
       <version>${mdsal.version}</version>
       <type>xml</type>

@@ -1,18 +1,28 @@
+/*
+ * [To Do: Use OpenDayLight licence]
+ */
+
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.impl.rev150922;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
-import org.opendaylight.panda.impl.KafkaUserAgentFactory;
+import org.opendaylight.kafkacluster.impl.KafkaUserAgentFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-/**
- * 
- * @author Xiaoyu Chen
- */
+
 public class KafkaModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.impl.rev150922.AbstractKafkaModule {
     
+    //Private variable --
     private static final Logger LOG = LoggerFactory.getLogger(KafkaModule.class);
     
+    
+    //Public methods --
+    
+    /**
+     * Constructor
+     * @param identifier
+     * @param dependencyResolver 
+     */
     public KafkaModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver) {
         
         super(identifier, dependencyResolver);
@@ -22,6 +32,13 @@ public class KafkaModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.p
         }
     }
 
+    /**
+     * Constructor
+     * @param identifier
+     * @param dependencyResolver
+     * @param oldModule
+     * @param oldInstance 
+     */
     public KafkaModule(org.opendaylight.controller.config.api.ModuleIdentifier identifier, org.opendaylight.controller.config.api.DependencyResolver dependencyResolver, org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.impl.rev150922.KafkaModule oldModule, java.lang.AutoCloseable oldInstance) {
         super(identifier, dependencyResolver, oldModule, oldInstance);
         if (LOG.isDebugEnabled())
@@ -30,15 +47,22 @@ public class KafkaModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.p
         }
     }
 
+    /**
+     * Validate module attributes
+     */
     @Override
     public void customValidation() {
-        // add custom validation form module attributes here.
+        // do nothing.
         if (LOG.isDebugEnabled())
         {
             LOG.debug("in customValidation()");
         }
     }
 
+    /**
+     * Factory method to create a KafkaUserAgentFactory instance
+     * @return 
+     */
     @Override
     public java.lang.AutoCloseable createInstance() {
         if (LOG.isDebugEnabled())
@@ -52,8 +76,6 @@ public class KafkaModule extends org.opendaylight.yang.gen.v1.urn.opendaylight.p
                 .registerConsumer(new NoopDOMConsumer())
                 .getService(DOMNotificationService.class);
         return new KafkaUserAgentFactory(dataBroker, notifyService);
-        
-        
     }
 
 }

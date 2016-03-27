@@ -13,31 +13,29 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.yangtools/features-yangtools/${yangtools.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.controller/features-mdsal/${mdsal.version}/xml/features</repository>
   <repository>mvn:org.opendaylight.controller/features-restconf/${mdsal.version}/xml/features</repository>
+  <repository>mvn:org.opendaylight.controller/features-netconf-connector/${mdsal.version}/xml/features</repository>
+  
   <feature name='odl-kafka-agent-api' version='${project.version}' description='OpenDaylight :: kafka-agent :: api'>
     <feature version='${yangtools.version}'>odl-yangtools-models</feature>
-    <bundle>mvn:org.opendaylight.panda/kafka-agent-api/${project.version}</bundle>
+    <bundle>mvn:org.opendaylight.kafkacluster/kafka-agent-api/${project.version}</bundle>
   </feature>
   <feature name='odl-kafka-agent' version='${project.version}' description='OpenDaylight :: kafka-agent'>
+    <!--feature version="${mdsal.version}">odl-config-api</feature-->
     <feature version="${mdsal.version}">odl-message-bus</feature>  
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${project.version}'>odl-kafka-agent-api</feature>
-    <!--bundle dependency='true'>mvn:org.ow2.util.bundles/zookeeper-3.3.1/1.0.0</bundle-->
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.metrics-core/2.2.0_1</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.10.2_1</bundle>
     <bundle dependency='true'>mvn:org.apache.zookeeper/zookeeper/3.4.5</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.kafka_2.10/0.8.1_1</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.kafka-clients/0.9.0.0_1</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.avro/1.7.7_1</bundle>
     <bundle dependency='true'>mvn:com.thoughtworks.paranamer/paranamer/2.6.1</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-compress/1.5</bundle>
     <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-core-asl/1.9.13</bundle>
     <bundle dependency='true'>mvn:org.codehaus.jackson/jackson-mapper-asl/1.9.13</bundle>
     <bundle dependency='true'>mvn:org.xerial.snappy/snappy-java/1.1.1.6</bundle>
-    <!--bundle dependency='true'>mvn:net.jpountz.lz4/lz4/1.2.0</bundle-->
-    <!--bundle dependency='true'>mvn:org.hamcrest/hamcrest-core/1.3</bundle-->
-    <!--bundle dependency='true'>mvn:jline/jline/0.9.94</bundle-->
-    <!--bundle dependency='true'>mvn:io.netty/netty/3.7.0.Final</bundle-->
-    <bundle>mvn:org.opendaylight.panda/kafka-agent-impl/${project.version}</bundle>
-    <configfile finalname="${configfile.directory}/kafka-agent.xml">mvn:org.opendaylight.panda/kafka-agent-impl/${project.version}/xml/config</configfile>
+    <bundle>mvn:org.opendaylight.kafkacluster/kafka-agent-impl/${project.version}</bundle>
+    <configfile finalname="${configfile.directory}/kafka-agent.xml">mvn:org.opendaylight.kafkacluster/kafka-agent-impl/${project.version}/xml/config</configfile>
   </feature>
   <feature name='odl-kafka-agent-rest' version='${project.version}' description='OpenDaylight :: kafka-agent :: REST'>
     <feature version="${project.version}">odl-kafka-agent</feature>

@@ -1,4 +1,4 @@
-{"namespace": "com.cisco.openoss",
+{"namespace": "%s",
  "type": "record",
  "name": "event",
  "fields": [

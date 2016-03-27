@@ -1,18 +1,18 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * [To Do: Use OpenDayLight licence]
  */
-package org.opendaylight.panda.impl;
+package org.opendaylight.kafkacluster.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.Scanner;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -23,9 +23,9 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -37,10 +37,10 @@ import org.opendaylight.controller.md.sal.dom.api.DOMNotificationListener;
 import org.opendaylight.controller.md.sal.dom.api.DOMNotificationService;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.messagebus.eventaggregator.rev141202.TopicId;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.messagebus.eventaggregator.rev141202.TopicNotification;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev150922.KafkaProducerConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev150922.KafkaProducerConfig.CompressionCodec;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev150922.KafkaProducerConfig.MessageSerialization;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev150922.KafkaProducerConfig.ProducerType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig.CompressionType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig.MessageSerialization;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig.KafkaProducerType;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -53,41 +53,43 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- *
- * @author williscc
+ * 
+ * @author Xiaoyu Chen
  */
 public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(KafkaUserAgentImpl.class);
-
+    
+    //static variables 
+    private final static Logger LOG = LoggerFactory.getLogger(KafkaUserAgentImpl.class);
+    private final static String avroSchema = "record.avsc";
+    private static Schema schema;
+    
+    //Private variables
     private final ListenerRegistration<KafkaUserAgentImpl> notificationReg;
-
     private final NodeIdentifier EVENT_SOURCE_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "node-id"));
     private final NodeIdentifier PAYLOAD_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "payload"));
     private static final NodeIdentifier TOPIC_ID_ARG = new NodeIdentifier(QName.create(TopicNotification.QNAME, "topic-id"));
-    
     private final SchemaPath TOPIC_NOTIFICATION_PATH = SchemaPath.create(true, TopicNotification.QNAME);
-
-    private final static String DEFAULT_AVRO_SCHEMA = "dataplatform-raw.avsc";
-    
     private final String DEFAULT_HOST_IP;
-
-    private final Producer producer;
-    
+    private final KafkaProducer producer;
     private final String timestampXPath;
-    
     private final String hostIpXPath;
-    
     private final String messageSourceXPath;
-    
     private final String defaultMessageSource;
-    
     private final String topic;
-    
     private final Set<String> registeredTopics = new HashSet<>();
-    
-    private static Schema schema;
 
+    
+    
+    //Public methods --
+    
+    
+    /**
+     * Static factory method
+     * @param notificationService
+     * @param configuration
+     * @return Singleton instance of KafkaUserAgentImpl
+     */
     public static KafkaUserAgentImpl create(final DOMNotificationService notificationService, final KafkaProducerConfig configuration) {
         if (LOG.isDebugEnabled()) {
             LOG.debug("in create()");
@@ -95,6 +97,10 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         return new KafkaUserAgentImpl(notificationService, configuration);
     }
 
+    /**
+     * Handling notifications received via ODL message bus
+     * @param notification 
+     */
     @Override
     public void onNotification(DOMNotification notification) {
         
@@ -139,7 +145,6 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                 //processing message
                 
                 final String rawdata = this.parsePayLoad(notification);
-                
                 
                 if (messageSourceXPath != null)
                 {
@@ -193,45 +198,40 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                 
 
                 LOG.info("about to send message to Kafka ...");
-                KeyedMessage<String, byte[]> keyedMessage=null;
+                ProducerRecord<String, byte[]> message;
                 if (schema == null)
                 {
                     LOG.info("sending data without serialization.");
-                    keyedMessage = new KeyedMessage<>(topic, rawdata.getBytes());
+                    message = new ProducerRecord<>(topic, rawdata.getBytes());
                 }
                 else
                 {
                     LOG.info("sending data using avro serialisation.");
-                    keyedMessage = new KeyedMessage<>(topic, encode(timestamp, hostIp, messageSource, rawdata));
-                    /*
-                    GenericRecord srec = new GenericData.Record(schema);
-                    srec.put("src", messageSource);
-                    srec.put("timestamp", timestamp);
-                    srec.put("host_ip", hostIp);
-                    srec.put("rawdata", (ByteBuffer) ByteBuffer.wrap(rawdata.getBytes()));
-                    keyedMessage = new KeyedMessage<String, Object>(topic, srec);
-                    */
+                    message = new ProducerRecord<>(topic, encode(timestamp, hostIp, messageSource, rawdata));
                 }
-                producer.send(keyedMessage);
+                producer.send(message);
                 LOG.info("message sent.");
             }
         }catch(Exception ex)
         {
             LOG.error("Error while sending message to Kafka: ", ex);
-            
         }
     }
 
+    /**
+     * Stop kafka agent 
+     * @throws Exception 
+     */
     @Override
     public void close() throws Exception {
         if (LOG.isDebugEnabled()) {
             LOG.debug("in close()");
         }
+        //unregister notification handler
         notificationReg.close();
         
+        //stop kafka producer 
         producer.close();
-        
-        
     }
     
     //Private methods --
@@ -249,10 +249,10 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         LOG.info("registering to Notification Service broker");
         //register this as a listener to notification service and listens all messages published to message-bus.
         notificationReg = notificationService.registerNotificationListener(this, TOPIC_NOTIFICATION_PATH);
-
+        //LOG.info("Target kafka version is set: " + configuration.getKafkaVersion());
         LOG.info("Creating kafka producer instance using the following configuration");
-        LOG.info("metadata.broker.list -> " + configuration.getMetadataBrokerList());
-        LOG.info("topic -> " + configuration.getTopic());
+        LOG.info("metadata.broker.list -> " + configuration.getKafkaBrokerList());
+        LOG.info("topic -> " + configuration.getKafkaTopic());
         
         try{
             String topicSubscriptions = configuration.getEventSubscriptions();
@@ -261,14 +261,14 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                 LOG.info("adding topic subscriptions : " + topicSubscriptions);
                 registeredTopics.addAll(Arrays.asList(topicSubscriptions.split(", ")));
             }
-            topic = configuration.getTopic();
+            topic = configuration.getKafkaTopic();
             if (topic ==null)
             {
                 throw new Exception ("topic is a mandatory configuration. Kafka producer is not initialised.");
             }
-            timestampXPath = configuration.getDpTimestampXpath();
-            hostIpXPath = configuration.getDpMessageHostIpXpath();
-            messageSourceXPath = configuration.getDpMessageSourceXpath();
+            timestampXPath = configuration.getTimestampXpath();
+            hostIpXPath = configuration.getMessageHostIpXpath();
+            messageSourceXPath = configuration.getMessageSourceXpath();
             defaultMessageSource = configuration.getDefaultMessageSource();
             
             if (configuration.getDefaultHostIp()!=null)
@@ -279,7 +279,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                 DEFAULT_HOST_IP = "0.0.0.0";
             }
             LOG.info("default host ip is set: " + DEFAULT_HOST_IP);
-            producer = new Producer<>(createProducerConfig(configuration));
+            producer = new KafkaProducer<String, byte[]>(createProducerConfig(configuration));
             
         }catch(Exception ex)
         {
@@ -288,8 +288,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
             
         }
     }
-    
-    //Private methods --
+
     private byte[] encode(Long timestamp, String hostIp, String src, String payload) throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -306,7 +305,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         return out.toByteArray();
     }
     
-    private static ProducerConfig createProducerConfig(KafkaProducerConfig configuration) throws Exception {
+    private static Properties createProducerConfig(KafkaProducerConfig configuration) throws Exception {
         if (LOG.isDebugEnabled())
         {
             LOG.debug("in createProducerConfig()");
@@ -315,68 +314,54 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         Properties props = new Properties();
 
         //check existence of mandatory configurations
-        String brokerList = configuration.getMetadataBrokerList();
-        ProducerType producerType = configuration.getProducerType();
-        CompressionCodec compCodec = configuration.getCompressionCodec();
+        String brokerList = configuration.getKafkaBrokerList();
+        KafkaProducerType producerType = configuration.getKafkaProducerType();
+        CompressionType compCodec = configuration.getCompressionType();
         MessageSerialization ser = configuration.getMessageSerialization();
         
-        String avroSchema = configuration.getAvroSchema();
-        //Long avroSchemaId = configuration.getAvroSchemaId();
+        String avroSchemaNameSpace = configuration.getAvroSchemaNamespace();
+        if (avroSchemaNameSpace == null)
+        {
+            throw new Exception("avro schema namespace is a mandatory configuration. Kafka producer is not initialised.");
+        }
         
-        // Mandatory ones
-        //try {
-            if (brokerList == null)
-            {
-                throw new Exception("metadata-broker-list is a mandatory configuration. Kafka producer is not intialised.");
-            }
+        if (brokerList == null)
+        {
+            throw new Exception("metadata-broker-list is a mandatory configuration. Kafka producer is not initialised.");
+        }
+
+
+        if (producerType == null)
+        {
+            throw new Exception("producer-type is a mandatory configuration. Kafka producer is not initialised.");
+        }
+
+        if(compCodec == null)
+        {
+            throw new Exception("compression-codec is a mandatory configuration. Kafka producer is not initialised.");
+        }
+
+        if (ser == null)
+        {
+            throw new Exception ("message-serialization is a mandatory configuration. Kafka producer is not initialised.");
+        }
             
-            
-            if (producerType == null)
-            {
-                throw new Exception("producer-type is a mandatory configuration. Kafka producer is not initialised.");
-            }
-            
-            if(compCodec == null)
-            {
-                throw new Exception("compression-codec is a mandatory configuration. Kafka producer is not initialised.");
-            }
-            
-            if (ser == null)
-            {
-                throw new Exception ("message-serialization is a mandatory configuration. Kafka producer is not initialised.");
-            }
-            
-             
-            if (avroSchema == null)
-            {
-                avroSchema = DEFAULT_AVRO_SCHEMA;
-                
-            }
-            LOG.info("avroSchema = " + avroSchema);
-            
-            
-            //LOG.info("avroSchemaId (obtained from configuration) : " + avroSchemaId);
-            /*if (avroSchemaId == null)
-            {
-                avroSchemaId = DEFAULT_AVRO_SCHEMA_ID;
-            }
-            LOG.info("avroSchemaId = " + avroSchemaId);
-            */
-            
-            //set mandatory properties
+        //set mandatory properties
+        /*
+        if (kafkaVersion.getIntValue() < 1)
+        {
+            //set producer properties for kafka version 0.8 or lower
             props.put(""+Constants.PROP_MD_BROKER_LIST,  brokerList);
-            
             LOG.info("setting producer type property ...");
             switch (producerType.getIntValue()){
                 case 0: props.put(""+Constants.PROP_PRODUCER_TYPE, "sync");
-                        LOG.info("producer.type is set as sync");
-                        break;
+                    LOG.info("producer.type is set as sync");
+                    break;
                 case 1: props.put(""+Constants.PROP_PRODUCER_TYPE, "async");
-                        LOG.info("producer.type is set as async");
-                        break;
+                    LOG.info("producer.type is set as async");
+                    break;
                 default: throw new Exception("Unrecognised producer type " + producerType.getIntValue()+". Kafka producer is not intialised.");
             }
-            
             LOG.info("setting compression codec property ...");
             switch(compCodec.getIntValue())
             {
@@ -388,98 +373,57 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                         break;
                 //case 3: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "lz4");
                 //        break;
-                default: throw new Exception("Unrecognised compression encode type " + compCodec.getIntValue()+". Kafka producer is not intialised.");
+                default: throw new Exception("Unrecognised/unsupported compression encoding " + compCodec.getIntValue()+". Kafka producer is not intialised.");
             }
-            
-            
             LOG.info("setting serialization property ...");
             props.put(""+Constants.PROP_PRODUCER_MSG_ENCODER,Constants.KAFKA_DEFAULT_MSG_ENCODER);
-            switch(ser.getIntValue())
-            {
-                case 0: //props.put(""+Constants.PROP_PRODUCER_MSG_ENCODER,Constants.KAFKA_DEFAULT_MSG_ENCODER);
-                        LOG.info("No serialization set.");
-                        schema = null;
-                        break;
-                case 1: //props.put(""+Constants.PROP_PRODUCER_MSG_ENCODER, DataplatformEncoder.class.getName());
-                        //Constants.KAFKA_DATAPLATFORM_MSG_ENCODER);
-                        //LOG.info("set dataplatform message encoder.");
-                        //configure producer with addtional information
-                        
-                        //props.put(""+Constants.PROP_PRI_ENC_SCHEMA, avroSchema);
-                        
-                        //LOG.info("avro schema set as: " + avroSchema);
-                        //props.put(""+Constants.PROP_PRI_ENC_SCHEMAID, avroSchemaId);
-                        //LOG.info("avro schema id set as: " + avroSchemaId);
-                        //props.put(""+Constants.PROP_PRI_ENC_EXTRAHEADER,(String) "false"); //set default value to false;
-                        //load schema
-                        LOG.info("load schema from classpath  ...");
-                        schema = new Schema.Parser().parse(KafkaUserAgentImpl.class.getClassLoader().getResourceAsStream(avroSchema));
-                        LOG.info("schema loaded.");
-                        break;
-                 default: throw new Exception("Unrecognised message serialization type " + ser.getIntValue()+". Kafka producer is not intialised.");
-            }
+        }else{*/
             
-            /*Enumeration keys = props.keys();
-            while(keys.hasMoreElements())
-            {
-                String key = (String) keys.nextElement();
-                LOG.info(key + " -> " + props.get(key).toString());
-            }*/
-            
-            LOG.info("creating ProducerConfig instance...");
-            return new ProducerConfig(props);
-            /*
-            String  msgSerialization=mainConfig.getProperty(Constants.PROP_SERIALIZATION);
-            if (msgSerialization.equalsIgnoreCase(Constants.STR_SERIALIZATION_RAW)) {
-                logger.debug("producer setting: no serialization required");
-                props.put(""+Constants.PROP_PRODUCER_MSG_ENCODER,Constants.KAFKA_DEFAULT_MSG_ENCODER);
-                        //Use the default binary encoder
-            } else {
-                logger.debug("producer setting: serialization required");
-                String configExtra=mainConfig.getProperty(Constants.PROP_AVRO_EXTRA_HEADER);
-                props.put(""+Constants.PROP_PRODUCER_MSG_ENCODER,Constants.KAFKA_DATAPLATFORM_MSG_ENCODER);
-                props.put(""+Constants.PROP_PRI_ENC_SCHEMA,mainConfig.getProperty(Constants.PROP_AVRO_SCHEMA));
-                props.put(""+Constants.PROP_PRI_ENC_SCHEMAID,mainConfig.getProperty(Constants.PROP_AVRO_SCHEMAID));
-          
-                if ( configExtra.equalsIgnoreCase(Constants.MSG_HEADER_CONFLUENT_IO )) {
-                    props.put(""+Constants.PROP_PRI_ENC_EXTRAHEADER,(String) "true");
-                }
-                else {
-                    props.put(""+Constants.PROP_PRI_ENC_EXTRAHEADER,(String) "false");
-                }
-            
-            }*/
-            
-            /*
-            props.put(""+Constants.PROP_KAFKA_GROUPID,                  mainConfig.getProperty(Constants.PROP_KAFKA_GROUPID ));
+        //set producer properties for kafka version 0.9 or above
+        props.put(""+ ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
+        LOG.info("setting compression codec property ...");
+        switch(compCodec.getIntValue())
+        {
+            case 0: props.put(""+ProducerConfig.COMPRESSION_TYPE_CONFIG, "none");
+                    break;
+            case 1: props.put(""+ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
+                    break;
+            case 2: props.put(""+ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
+                    break;
+            //case 3: props.put(""+ProducerConfig.COMPRESSION_TYPE_CONFIG, "lz4");
+            //        break;
+            default: throw new Exception("Unrecognised/unsupported compression type " + compCodec.getIntValue()+". Kafka producer is not intialised.");
+        }
 
-            if (mainConfig.getProperty(Constants.PROP_PARTITIONER_CLASS) != null) {
-                props.put(""+Constants.PROP_PARTITIONER_CLASS,          mainConfig.getProperty(Constants.PROP_PARTITIONER_CLASS));
-            }
-            if (mainConfig.getProperty(Constants.PROP_PRODUCER_COMPRESSED_TOPIC) != null) {
-                props.put(""+Constants.PROP_PRODUCER_COMPRESSED_TOPIC,  mainConfig.getProperty(Constants.PROP_PRODUCER_COMPRESSED_TOPIC));
-            }*/
-        
-        
-        // Aynsc producer only
-        /*
-        String asyncValue=Constants.STR_PRODUCER_TYPE_ASYNC;
-        String producerType=mainConfig.getProperty(Constants.PROP_PRODUCER_TYPE);
-        if (asyncValue.equalsIgnoreCase(producerType)) {
-            props.put(""+Constants.PROP_PRODUCER_AS_Q_MAX_MS,       mainConfig.getProperty(Constants.PROP_PRODUCER_AS_Q_MAX_MS));
-            props.put(""+Constants.PROP_PRODUCER_AS_Q_MAX_MSG,      mainConfig.getProperty(Constants.PROP_PRODUCER_AS_Q_MAX_MSG));
-            props.put(""+Constants.PROP_PRODUCER_AS_Q_TIMEOUT,      mainConfig.getProperty(Constants.PROP_PRODUCER_AS_Q_TIMEOUT));
-            props.put(""+Constants.PROP_PRODUCER_AS_Q_BATCH_MSG,    mainConfig.getProperty(Constants.PROP_PRODUCER_AS_Q_BATCH_MSG));
-        }*/
-        //} 
-        //catch (Exception ex) {
-        //    LOG.error(ex.getMessage());
-        //    throw new RuntimeException("Unable to instantiate kafka producer", ex);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Constants.STR_SERIALIZER_CLASS);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Constants.BYTEARRY_SERIALIZER_CLASS);
         //}
         
+        switch(ser.getIntValue())
+        {
+            case 0: 
+                    LOG.info("No serialization set.");
+                    schema = null;
+                    break;
+            case 1: 
+                    LOG.info("load schema from classpath  ...");
+                    
+                    schema = new Schema.Parser().parse(loadAvroSchemaAsString(avroSchemaNameSpace));
+                    LOG.info("schema loaded.");
+                    break;
+             default: 
+                    throw new Exception("Unrecognised message serialization type " + ser.getIntValue()+". Kafka producer is not intialised.");
+        }
+
+        LOG.info("creating ProducerConfig instance...");
+        return props;
     }
     
-    
+    /**
+     * Extract raw event payload
+     * @param notification
+     * @return 
+     */
     private String parsePayLoad(DOMNotification notification){
 
         if (LOG.isDebugEnabled())
@@ -502,6 +446,12 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         return writer.toString();
     }
     
+    /**
+     * Utility function that loads XML document from string
+     * @param xml
+     * @return XML Document
+     * @throws Exception 
+     */
     private static Document loadXmlFromString (String xml) throws Exception
     {
         DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
@@ -511,6 +461,13 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         return doc;
     }
     
+    /**
+     * Evaluate XPath 
+     * @param payload
+     * @param xpathStmt
+     * @return
+     * @throws Exception 
+     */
     private String evaluate (String payload, String xpathStmt) throws Exception
     {
         String result = null;
@@ -519,7 +476,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         NodeList nodeList = (NodeList) xpath.evaluate(xpathStmt, doc, XPathConstants.NODESET);
-        //System.out.println(nodeList.getLength());
+        System.out.println(nodeList.getLength());
         if (nodeList.getLength()>0)
         {
             Node node = nodeList.item(0);
@@ -527,6 +484,28 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         }
         
         return result;
+    }
+    
+    /**
+     * Load avro schema and replace namespace with user-defined value
+     * @param namespace
+     * @return avro schema
+     * @throws Exception 
+     */
+    private static String loadAvroSchemaAsString (String namespace) throws Exception
+    {
+        String avroSchemaStr;
+        StringBuilder sb = new StringBuilder("");
+        InputStream is = KafkaUserAgentImpl.class.getClassLoader().getResourceAsStream(avroSchema);
+        try (Scanner scanner = new Scanner(is)) {
+            while (scanner.hasNextLine())
+            {
+                String line = scanner.nextLine();
+                sb.append(line);
+            }
+        }
+        avroSchemaStr = String.format(sb.toString(), namespace);
+        return avroSchemaStr;
     }
     
     

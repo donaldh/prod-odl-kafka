@@ -10,11 +10,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent</artifactId>
-    <!--version>1.5.0-Lithium</version-->
-    <version>1.5.1-SNAPSHOT</version>
+    <version>1.5.0-Lithium</version>
   </parent>
 
-  <groupId>org.opendaylight.panda</groupId>
+  <groupId>org.opendaylight.kafkacluster</groupId>
   <artifactId>kafka-agent-aggregator</artifactId>
   <version>1.0.0-Lithium</version>
   <name>kafka-agent</name>
@@ -23,7 +22,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <prerequisites>
     <maven>3.1.1</maven>
   </prerequisites>
-  <modules></modules>
+  <modules>
+    <module>api</module>
+    <module>impl</module>
+    <module>karaf</module>
+    <module>features</module>
+    <module>artifacts</module>
+  </modules>
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
     <plugins>
@@ -50,4 +55,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <tag>HEAD</tag>
     <url>https://wiki.opendaylight.org/view/kafka-agent:Main</url>
   </scm>
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
 </project>
