@@ -1,4 +1,4 @@
-# prod-odl-kafka (for Kafka version 0.9)
+# prod-odl-kafka (for Kafka version 0.8 or lower)
 ## Overview
 `prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster. The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint.
 
