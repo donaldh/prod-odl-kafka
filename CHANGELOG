@@ -1,0 +1,12 @@
+
+-------
+Version: 1.0.1
+Date: 29/03/2016
+
+Refactored prod-odl-kafka implementations with updated YANG model
+
+-------
+Version: 1.0.0
+Date: 29/12/2015
+
+First Lithium release of prod-odl-kafka
