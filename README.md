@@ -1,7 +1,7 @@
 * [Overview](#overview)
 * [Installation](#installation)
 * [Configurations](#configurations)
-* [Integration tests](#Integration tests)
+* [Integration tests](#Integration-tests)
 
 
 # Overview #
