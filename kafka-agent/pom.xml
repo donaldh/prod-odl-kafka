@@ -15,7 +15,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
 
   <groupId>org.opendaylight.kafkacluster</groupId>
   <artifactId>kafka-agent-aggregator</artifactId>
-  <version>1.0.0-Lithium</version>
+  <version>1.0.2-Lithium</version>
   <name>kafka-agent</name>
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
