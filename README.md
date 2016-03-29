@@ -1,5 +1,5 @@
 * [Overview](#overview)
-* [Installation](#api-documentation)
+* [Installation](#installation)
 * [Configurations](#configurations)
 * [Integration tests](#integration tests)
 
