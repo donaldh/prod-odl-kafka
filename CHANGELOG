@@ -1,4 +1,10 @@
 -------
+Version: 2.0.1
+Date 29/03/2016
+
+Updated YANG model for kafka producer configurations and refactored codes to not apply the configuration at runtime.
+
+-------
 Version: 2.0.0
 Date 29/03/2016
 
