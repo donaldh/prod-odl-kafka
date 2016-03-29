@@ -27,7 +27,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.metrics-core/2.2.0_1</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.scala-library/2.10.2_1</bundle>
     <bundle dependency='true'>mvn:org.apache.zookeeper/zookeeper/3.4.5</bundle>
-    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.kafka_2.10/0.8.1_1</bundle>
+    <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.kafka-clients/0.9.0.0_1</bundle>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.avro/1.7.7_1</bundle>
     <bundle dependency='true'>mvn:com.thoughtworks.paranamer/paranamer/2.6.1</bundle>
     <bundle dependency='true'>mvn:org.apache.commons/commons-compress/1.5</bundle>

@@ -25,9 +25,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
 import org.apache.avro.generic.GenericDatumWriter;
@@ -42,7 +42,6 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.messagebus.even
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig.CompressionType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig.MessageSerialization;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.rev160323.KafkaProducerConfig.KafkaProducerType;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.common.QName;
 import org.opendaylight.yangtools.yang.data.api.YangInstanceIdentifier.NodeIdentifier;
@@ -75,7 +74,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
     //Private variables
     private final ListenerRegistration<KafkaUserAgentImpl> notificationReg;
     private String defaultHostIp;
-    private final Producer producer;
+    private final KafkaProducer producer;
     private final String timestampXPath;
     private final String hostIpXPath;
     private final String messageSourceXPath;
@@ -124,7 +123,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         }
 
         LOG.info("default host ip is set: " + defaultHostIp);
-        producer = new Producer<>(createConfig(configuration));
+        producer = new KafkaProducer<String, byte[]>(createConfig(configuration));
             
     }
     
@@ -164,16 +163,16 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                 String hostIp = parseHostIp(rawdata);
 
                 LOG.info("about to send message to Kafka ...");
-                KeyedMessage<String, byte[]> message;
+                ProducerRecord<String, byte[]> message;
                 if (schema == null)
                 {
                     LOG.info("sending data without serialization.");
-                    message = new KeyedMessage<>(topic, rawdata.getBytes());
+                    message = new ProducerRecord<>(topic, rawdata.getBytes());
                 }
                 else
                 {
                     LOG.info("sending data using avro serialisation.");
-                    message = new KeyedMessage<>(topic, encode(timestamp, hostIp, messageSource, rawdata));
+                    message = new ProducerRecord<>(topic, encode(timestamp, hostIp, messageSource, rawdata));
                 }
                 producer.send(message);
                 LOG.info("message sent.");
@@ -346,19 +345,19 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
      * @param configuration
      * @return 
      */
-    private static ProducerConfig createConfig(KafkaProducerConfig configuration) {
+    private static Properties createConfig(KafkaProducerConfig configuration) {
         Properties props = new Properties();
         //check existence of mandatory configurations
         checkConfigValidity(configuration);
         //set producer properties for kafka version 0.8 or lower
-        props.put(""+Constants.PROP_MD_BROKER_LIST,  configuration.getKafkaBrokerList());
-        setProducerTypeProp(configuration.getKafkaProducerType(), props);
+        props.put(""+ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,  configuration.getKafkaBrokerList());
         setCompressionTypeProp(configuration.getCompressionType(), props);
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, Constants.STR_SERIALIZER_CLASS);
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, Constants.BYTEARRY_SERIALIZER_CLASS);
         LOG.info("setting serialization property ...");
-        props.put(""+Constants.PROP_PRODUCER_MSG_ENCODER,Constants.KAFKA_DEFAULT_MSG_ENCODER);
         initSchema(configuration.getMessageSerialization(), configuration.getAvroSchemaNamespace());
         LOG.info("creating ProducerConfig instance...");
-        return new ProducerConfig(props);
+        return props;
     }
     
     /**
@@ -386,25 +385,6 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
     }
     
     /**
-     * set kafka producer type property
-     * @param type
-     * @param props 
-     */
-    private static void setProducerTypeProp (KafkaProducerType type, Properties props)
-    {
-        LOG.info("setting producer type property ...");
-        switch (type.getIntValue()){
-            case 0: props.put(""+Constants.PROP_PRODUCER_TYPE, "sync");
-                LOG.info("producer.type is set as sync");
-                break;
-            case 1: props.put(""+Constants.PROP_PRODUCER_TYPE, "async");
-                LOG.info("producer.type is set as async");
-                break;
-            default: throw new IllegalArgumentException(String.format("Unrecognised producer type %d Kafka producer is not intialised.", type.getIntValue()));
-        }
-    }
-    
-    /**
      * set compression type property
      * @param type
      * @param props 
@@ -414,11 +394,11 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         LOG.info("setting compression codec property ...");
         switch(type.getIntValue())
         {
-            case 0: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "none");
+            case 0: props.put(""+ProducerConfig.COMPRESSION_TYPE_CONFIG, "none");
                     break;
-            case 1: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "gzip");
+            case 1: props.put(""+ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
                     break;
-            case 2: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "snappy");
+            case 2: props.put(""+ProducerConfig.COMPRESSION_TYPE_CONFIG, "snappy");
                     break;
             default: throw new IllegalArgumentException("Unrecognised/unsupported compression encoding " + type.getIntValue()+". Kafka producer is not intialised.");
         }
