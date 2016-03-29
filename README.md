@@ -5,7 +5,7 @@
 
 
 # Overview #
-`prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster. The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
+`prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster (version 0.9 +). The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
 
 <img src="overview.png" alt="overview-png" height="400">
 
@@ -108,7 +108,6 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 | parameter     | description                   | data type |         examples      | default | mandatory |
 |:--------------|:------------------------------|:----------|:----------------------|:--------|:----------|
 | kafka-broker-list| The Kafka bootstrapping broker list | string |-|Yes|
-|kafka-producer-type |Instrument Kafka whether messages are sent asynchronously or not in the background thread  (does not apply for kafka version 0.9) |enum	|sync/async|sync|Yes|
 |compression-type |Compression codec for all messages|enum|none/gzip/snappy|none|Yes|
 |kafka-topic|kafka topic name|string|"snmp"|-|Yes|
 |message-serialization |Kafka message serialisation type|enum|	raw/avro|raw|Yes|
@@ -171,7 +170,7 @@ $bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odl-test --fro
 ```
 $ curl --user admin:admin \ 
        --request PUT http://localhost:8080/restconf/config/kafka-agent:kafka-producer-config \
-       --data '{kafka-producer-config: {kafka-broker-list: "127.0.0.1:9092", kafka-topic: "odl-test", kafka-producer-type: "async", compression-type: "none", message-serialization: "raw", avro-schema-namespace:"com.example.project"}}' \
+       --data '{kafka-producer-config: {kafka-broker-list: "127.0.0.1:9092", kafka-topic: "odl-test", compression-type: "none", message-serialization: "raw", avro-schema-namespace:"com.example.project"}}' \
        --header "Content-Type:application/yang.data+json"
 ```
 To verify configurations are set properly, run:
@@ -182,7 +181,7 @@ $ curl --user admin:admin --request GET http://localhost:8080/restconf/config/ka
 You should see the output as:
 
 ```
-{"kafka-producer-config":{"kafka-producer-type":"async","message-serialization":"raw","kafka-broker-list":"127.0.0.1:9092","avro-schema-namespace":"com.example.project","compression-type":"none","kafka-topic":"odl-test"}}
+{"kafka-producer-config":{"message-serialization":"raw","kafka-broker-list":"127.0.0.1:9092","avro-schema-namespace":"com.example.project","compression-type":"none","kafka-topic":"odl-test"}}
 ```
 
 ###### Start "hello world" event source to generate some messages.
