@@ -12,7 +12,7 @@ module kafka-agent {
 
     description "kafkacluster Kafka user agent";
 
-    revision "2016-03-23" {
+    revision "2016-03-29" {
         description "Initial revision of kafka-agent model";
     }
 
@@ -26,21 +26,6 @@ module kafka-agent {
             mandatory true;
             description
                 "The bootstrapping used by the agent for getting metadata (topics, partitions, and replicas).";
-        }
-        
-        leaf kafka-producer-type{
-             type enumeration {
-                enum "sync" {
-                    value 0;
-                    description "";
-                }
-                enum "async" {
-                    value 1;
-                    description "";
-                }
-            }
-            config true;
-            mandatory true;
         }
 
         leaf compression-type {

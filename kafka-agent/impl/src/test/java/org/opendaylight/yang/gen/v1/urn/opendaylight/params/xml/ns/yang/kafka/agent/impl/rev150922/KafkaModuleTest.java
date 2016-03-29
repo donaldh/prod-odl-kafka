@@ -27,25 +27,25 @@ public class KafkaModuleTest {
     }
 
     
-    @Test
-    public void testCreateInstance() throws Exception {
-        // configure mocks
-        DependencyResolver dependencyResolver = mock(DependencyResolver.class);
-        BindingAwareBroker broker = mock(BindingAwareBroker.class);
-        
-        when(dependencyResolver.resolveInstance(eq(BindingAwareBroker.class), any(ObjectName.class), any(JmxAttribute.class))).thenReturn(broker);
-        
-        // create instance of module with injected mocks
-        KafkaModule module = new KafkaModule(mock(ModuleIdentifier.class), dependencyResolver);
-        try{
-            // getInstance calls resolveInstance to get the broker dependency and then calls createInstance
-            AutoCloseable closeable = module.getInstance();
-           
-            // ensure no exceptions on close
-            closeable.close();
-        }catch(Exception ex)
-        {
-            System.out.println(ex.getMessage());
-        }
-    }
+//    @Test
+//    public void testCreateInstance() throws Exception {
+//        // configure mocks
+//        DependencyResolver dependencyResolver = mock(DependencyResolver.class);
+//        BindingAwareBroker broker = mock(BindingAwareBroker.class);
+//        
+//        when(dependencyResolver.resolveInstance(eq(BindingAwareBroker.class), any(ObjectName.class), any(JmxAttribute.class))).thenReturn(broker);
+//        
+//        // create instance of module with injected mocks
+//        KafkaModule module = new KafkaModule(mock(ModuleIdentifier.class), dependencyResolver);
+//        try{
+//            // getInstance calls resolveInstance to get the broker dependency and then calls createInstance
+//            AutoCloseable closeable = module.getInstance();
+//           
+//            // ensure no exceptions on close
+//            closeable.close();
+//        }catch(Exception ex)
+//        {
+//            System.out.println(ex.getMessage());
+//        }
+//    }
 }
