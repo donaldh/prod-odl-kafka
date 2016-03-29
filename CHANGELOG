@@ -1,7 +1,12 @@
+-------
+Version: 1.0.2
+Date: 29/03/2016
+
+Lithium multi-version supports
 
 -------
 Version: 1.0.1
-Date: 29/03/2016
+Date: 21/03/2016
 
 Refactored prod-odl-kafka implementations with updated YANG model
 
