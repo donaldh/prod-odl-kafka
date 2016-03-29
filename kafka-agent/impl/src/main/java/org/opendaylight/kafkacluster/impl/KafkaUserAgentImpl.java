@@ -16,12 +16,14 @@ import java.util.Scanner;
 import java.util.Set;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
@@ -51,6 +53,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * 
@@ -60,17 +63,18 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
 
     
     //static variables 
-    private final static Logger LOG = LoggerFactory.getLogger(KafkaUserAgentImpl.class);
-    private final static String avroSchema = "record.avsc";
+    private static final Logger LOG = LoggerFactory.getLogger(KafkaUserAgentImpl.class);
+    private static final String AVRO_SCHEMA = "record.avsc";
     private static Schema schema;
+    private static final NodeIdentifier EVENT_SOURCE_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "node-id"));
+    private static final NodeIdentifier PAYLOAD_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "payload"));
+    private static final NodeIdentifier TOPIC_ID_ARG = new NodeIdentifier(QName.create(TopicNotification.QNAME, "topic-id"));
+    private static final SchemaPath TOPIC_NOTIFICATION_PATH = SchemaPath.create(true, TopicNotification.QNAME);
+    
     
     //Private variables
     private final ListenerRegistration<KafkaUserAgentImpl> notificationReg;
-    private final NodeIdentifier EVENT_SOURCE_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "node-id"));
-    private final NodeIdentifier PAYLOAD_NODE = new NodeIdentifier(QName.create(TopicNotification.QNAME, "payload"));
-    private static final NodeIdentifier TOPIC_ID_ARG = new NodeIdentifier(QName.create(TopicNotification.QNAME, "topic-id"));
-    private final SchemaPath TOPIC_NOTIFICATION_PATH = SchemaPath.create(true, TopicNotification.QNAME);
-    private final String DEFAULT_HOST_IP;
+    private String defaultHostIp;
     private final Producer producer;
     private final String timestampXPath;
     private final String hostIpXPath;
@@ -79,6 +83,50 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
     private final String topic;
     private final Set<String> registeredTopics = new HashSet<>();
 
+    /**
+     * Constructor
+     * @param notificationService
+     * @param configuration 
+     */
+    private KafkaUserAgentImpl(final DOMNotificationService notificationService, final KafkaProducerConfig configuration) {
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("in KafkaUserAgentImpl()");
+        }
+
+        LOG.info("registering to Notification Service broker");
+        //register this as a listener to notification service and listens all messages published to message-bus.
+        notificationReg = notificationService.registerNotificationListener(this, TOPIC_NOTIFICATION_PATH);
+        LOG.info("Creating kafka producer instance using the following configuration");
+        LOG.info("metadata.broker.list -> " + configuration.getKafkaBrokerList());
+        LOG.info("topic -> " + configuration.getKafkaTopic());
+        
+        String topicSubscriptions = configuration.getEventSubscriptions();
+        if (topicSubscriptions !=null && !topicSubscriptions.isEmpty())
+        {
+            LOG.info("adding topic subscriptions : " + topicSubscriptions);
+            registeredTopics.addAll(Arrays.asList(topicSubscriptions.split(", ")));
+        }
+        topic = configuration.getKafkaTopic();
+        if (topic ==null)
+        {
+            throw new IllegalArgumentException ("topic is a mandatory configuration. Kafka producer is not initialised.");
+        }
+        timestampXPath = configuration.getTimestampXpath();
+        hostIpXPath = configuration.getMessageHostIpXpath();
+        messageSourceXPath = configuration.getMessageSourceXpath();
+        defaultMessageSource = configuration.getDefaultMessageSource();
+
+        if (configuration.getDefaultHostIp()!=null)
+        {
+            setDefaultHostIP(configuration.getDefaultHostIp());
+        }else{
+            setDefaultHostIP("localhost");
+        }
+
+        LOG.info("default host ip is set: " + defaultHostIp);
+        producer = new Producer<>(createConfig(configuration));
+            
+    }
     
     
     //Public methods --
@@ -103,99 +151,17 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
      */
     @Override
     public void onNotification(DOMNotification notification) {
-        
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("in onNotification()");
-        }
-
-        LOG.info("Notification received.");
-        
-        boolean isAcceptable = false;
-        
-        if (registeredTopics.isEmpty())
-        {
-            isAcceptable=true;
-        }
-        
-        if (!isAcceptable)
-        {
-            LOG.info("topic filters are not empty; applying them now...");
-            //check topic against filter list
-            if(notification.getBody().getChild(TOPIC_ID_ARG).isPresent()){
-                TopicId topicId = (TopicId) notification.getBody().getChild(TOPIC_ID_ARG).get().getValue();
-                if (topicId != null)
-                {
-                    LOG.info("topic is parsed: " + topicId.getValue());
-                    if(registeredTopics.contains(topicId.getValue())){
-                        isAcceptable = true;
-                        LOG.info("Topic accepted.");
-                    }
-                }
-            }
-        }
+        boolean isAcceptable = checkMsgAcceptable(notification);
         
         try{
-            
             if (producer!=null && isAcceptable)
             {
-                String messageSource=null;
-                Long timestamp = null;
-                String hostIp=null;
-
+                
                 //processing message
-                
                 final String rawdata = this.parsePayLoad(notification);
-                
-                if (messageSourceXPath != null)
-                {
-                    LOG.info("evaluating " + messageSourceXPath + " against message payload...");
-                    messageSource = this.evaluate(rawdata, messageSourceXPath);
-                }
-                
-                if (messageSource == null)
-                {
-                    messageSource = this.defaultMessageSource;
-                }
-                
-                if (messageSource == null)
-                {
-                    LOG.info("no message source xpath specified or invalid xpath statement. Use the node-id by default.");
-                    final String nodeId = notification.getBody().getChild(EVENT_SOURCE_NODE).get().getValue().toString();
-                    messageSource = nodeId;
-                }
-                
-                LOG.info("src = " + messageSource);
-
-                if (timestampXPath != null)
-                {
-                    LOG.info("evaluating " + timestampXPath + " against message payload ...");
-                    timestamp = Long.valueOf(this.evaluate(rawdata, timestampXPath));
-                    
-                }
-                
-                if (timestamp == null)
-                {
-                    LOG.info("no timestampe xpath specified or invalid xpath statement. Use the system time by default");
-                    timestamp = System.currentTimeMillis();
-                }
-                
-                LOG.info("timestamp = " + timestamp);
-
-                
-                if (hostIpXPath != null)
-                {
-                    LOG.info("evaluating " + hostIpXPath + " against message payload ...");
-                    hostIp = this.evaluate(rawdata, hostIpXPath);
-                }
-                
-                if (hostIp == null)
-                {
-                    LOG.info("not host ip xpath specified, use the ODL host ip by default");
-                    hostIp = DEFAULT_HOST_IP;
-                    
-                }
-                LOG.info("host-ip = " + hostIp);
-                
+                String messageSource = parseMessageSource(rawdata, notification);
+                Long timestamp = parseMessageTimestamp (rawdata);
+                String hostIp = parseHostIp(rawdata);
 
                 LOG.info("about to send message to Kafka ...");
                 KeyedMessage<String, byte[]> message;
@@ -219,6 +185,111 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
     }
 
     /**
+     * parse host IP from rawdata
+     * @param rawdata
+     * @return
+     * @throws XPathExpressionException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException 
+     */
+    private String parseHostIp (String rawdata) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
+    {
+        String hostIp = null;
+        if (hostIpXPath != null)
+        {
+            LOG.info("evaluating " + hostIpXPath + " against message payload ...");
+            hostIp = this.evaluate(rawdata, hostIpXPath);
+        }
+
+        if (hostIp == null)
+        {
+            LOG.info("not host ip xpath specified, use the ODL host ip by default");
+            hostIp = defaultHostIp;
+
+        }
+        LOG.info(String.format("host-ip parsed: %s" , hostIp));
+        return hostIp;
+    }
+    
+    /**
+     * parse message source
+     * @param rawdata
+     * @param notification
+     * @return
+     * @throws XPathExpressionException
+     * @throws ParserConfigurationException
+     * @throws SAXException
+     * @throws IOException 
+     */
+    private String parseMessageSource (String rawdata, DOMNotification notification) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
+    {
+        String messageSource=null;
+        if (messageSourceXPath != null)
+        {
+            LOG.info(String.format("Evaluating %s against message payload...", messageSourceXPath));
+            messageSource = this.evaluate(rawdata, messageSourceXPath);
+        }
+
+        if (messageSource == null)
+        {
+            messageSource = this.defaultMessageSource;
+        }
+
+        if (messageSource == null)
+        {
+            LOG.info("no message source xpath specified or invalid xpath statement. Use the node-id by default.");
+            final String nodeId = notification.getBody().getChild(EVENT_SOURCE_NODE).get().getValue().toString();
+            messageSource = nodeId;
+        }
+        LOG.info(String.format("message source parsed: %s", messageSource));
+        return messageSource;
+    }
+    
+    private Long parseMessageTimestamp (String rawdata) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
+    {
+        Long timestamp = null;
+        if (timestampXPath != null)
+        {
+            LOG.info("evaluating " + timestampXPath + " against message payload ...");
+            timestamp = Long.valueOf(this.evaluate(rawdata, timestampXPath));
+
+        }
+
+        if (timestamp == null)
+        {
+            LOG.info("no timestampe xpath specified or invalid xpath statement. Use the system time by default");
+            timestamp = System.currentTimeMillis();
+        }
+
+        LOG.info("timestamp parsed: " + timestamp);
+        
+        return timestamp;
+
+    }
+   
+    private boolean checkMsgAcceptable (DOMNotification notification)
+    {
+        if (registeredTopics.isEmpty())
+        {
+            return true;
+        }
+        
+        LOG.info("topic filters are not empty; applying them now...");
+        //check topic against filter list
+        if(notification.getBody().getChild(TOPIC_ID_ARG).isPresent()){
+            TopicId topicId = (TopicId) notification.getBody().getChild(TOPIC_ID_ARG).get().getValue();
+            if (topicId != null && registeredTopics.contains(topicId.getValue()))
+            {
+                LOG.info("topic is parsed: " + topicId.getValue());
+                LOG.info("Topic accepted.");
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    /**
      * Stop kafka agent 
      * @throws Exception 
      */
@@ -237,58 +308,23 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
     //Private methods --
     
     /**
-     * Constructor
-     * @param notificationService
-     * @param configuration 
+     * set default host ip
+     * @param defaultHostIp 
      */
-    private KafkaUserAgentImpl(final DOMNotificationService notificationService, final KafkaProducerConfig configuration) {
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("in KafkaUserAgentImpl()");
-        }
-
-        LOG.info("registering to Notification Service broker");
-        //register this as a listener to notification service and listens all messages published to message-bus.
-        notificationReg = notificationService.registerNotificationListener(this, TOPIC_NOTIFICATION_PATH);
-        //LOG.info("Target kafka version is set: " + configuration.getKafkaVersion());
-        LOG.info("Creating kafka producer instance using the following configuration");
-        LOG.info("metadata.broker.list -> " + configuration.getKafkaBrokerList());
-        LOG.info("topic -> " + configuration.getKafkaTopic());
-        
-        try{
-            String topicSubscriptions = configuration.getEventSubscriptions();
-            if (topicSubscriptions !=null && !topicSubscriptions.isEmpty())
-            {
-                LOG.info("adding topic subscriptions : " + topicSubscriptions);
-                registeredTopics.addAll(Arrays.asList(topicSubscriptions.split(", ")));
-            }
-            topic = configuration.getKafkaTopic();
-            if (topic ==null)
-            {
-                throw new Exception ("topic is a mandatory configuration. Kafka producer is not initialised.");
-            }
-            timestampXPath = configuration.getTimestampXpath();
-            hostIpXPath = configuration.getMessageHostIpXpath();
-            messageSourceXPath = configuration.getMessageSourceXpath();
-            defaultMessageSource = configuration.getDefaultMessageSource();
-            
-            if (configuration.getDefaultHostIp()!=null)
-            {
-                DEFAULT_HOST_IP = configuration.getDefaultHostIp();
-            }else
-            {
-                DEFAULT_HOST_IP = "0.0.0.0";
-            }
-            LOG.info("default host ip is set: " + DEFAULT_HOST_IP);
-            producer = new Producer<String, byte[]>(createProducerConfig(configuration));
-            
-        }catch(Exception ex)
-        {
-            LOG.error(ex.getMessage());
-            throw new RuntimeException(ex);
-            
-        }
+    private void setDefaultHostIP (String defaultHostIp)
+    {
+        this.defaultHostIp = defaultHostIp;
     }
-
+    
+    /**
+     * encode raw message to avro format
+     * @param timestamp
+     * @param hostIp
+     * @param src
+     * @param payload
+     * @return
+     * @throws IOException 
+     */
     private byte[] encode(Long timestamp, String hostIp, String src, String payload) throws IOException
     {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -305,76 +341,33 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         return out.toByteArray();
     }
     
-    private static ProducerConfig createProducerConfig(KafkaProducerConfig configuration) throws Exception {
-        if (LOG.isDebugEnabled())
-        {
-            LOG.debug("in createProducerConfig()");
-        }
-        
+    /**
+     * Create kafka producer configuration
+     * @param configuration
+     * @return 
+     */
+    private static ProducerConfig createConfig(KafkaProducerConfig configuration) {
         Properties props = new Properties();
-
         //check existence of mandatory configurations
-        String brokerList = configuration.getKafkaBrokerList();
-        KafkaProducerType producerType = configuration.getKafkaProducerType();
-        CompressionType compCodec = configuration.getCompressionType();
-        MessageSerialization ser = configuration.getMessageSerialization();
-        
-        String avroSchemaNameSpace = configuration.getAvroSchemaNamespace();
-        if (avroSchemaNameSpace == null)
-        {
-            throw new Exception("avro schema namespace is a mandatory configuration. Kafka producer is not initialised.");
-        }
-        
-        if (brokerList == null)
-        {
-            throw new Exception("metadata-broker-list is a mandatory configuration. Kafka producer is not initialised.");
-        }
-
-
-        if (producerType == null)
-        {
-            throw new Exception("producer-type is a mandatory configuration. Kafka producer is not initialised.");
-        }
-
-        if(compCodec == null)
-        {
-            throw new Exception("compression-codec is a mandatory configuration. Kafka producer is not initialised.");
-        }
-
-        if (ser == null)
-        {
-            throw new Exception ("message-serialization is a mandatory configuration. Kafka producer is not initialised.");
-        }
-            
-        //set mandatory properties
+        checkConfigValidity(configuration);
         //set producer properties for kafka version 0.8 or lower
-        props.put(""+Constants.PROP_MD_BROKER_LIST,  brokerList);
-        LOG.info("setting producer type property ...");
-        switch (producerType.getIntValue()){
-            case 0: props.put(""+Constants.PROP_PRODUCER_TYPE, "sync");
-                LOG.info("producer.type is set as sync");
-                break;
-            case 1: props.put(""+Constants.PROP_PRODUCER_TYPE, "async");
-                LOG.info("producer.type is set as async");
-                break;
-            default: throw new Exception("Unrecognised producer type " + producerType.getIntValue()+". Kafka producer is not intialised.");
-        }
-        LOG.info("setting compression codec property ...");
-        switch(compCodec.getIntValue())
-        {
-            case 0: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "none");
-                    break;
-            case 1: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "gzip");
-                    break;
-            case 2: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "snappy");
-                    break;
-            //case 3: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "lz4");
-            //        break;
-            default: throw new Exception("Unrecognised/unsupported compression encoding " + compCodec.getIntValue()+". Kafka producer is not intialised.");
-        }
+        props.put(""+Constants.PROP_MD_BROKER_LIST,  configuration.getKafkaBrokerList());
+        setProducerTypeProp(configuration.getKafkaProducerType(), props);
+        setCompressionTypeProp(configuration.getCompressionType(), props);
         LOG.info("setting serialization property ...");
         props.put(""+Constants.PROP_PRODUCER_MSG_ENCODER,Constants.KAFKA_DEFAULT_MSG_ENCODER);
-        
+        initSchema(configuration.getMessageSerialization(), configuration.getAvroSchemaNamespace());
+        LOG.info("creating ProducerConfig instance...");
+        return new ProducerConfig(props);
+    }
+    
+    /**
+     * initialize Avro schema
+     * @param ser
+     * @param ns 
+     */
+    private static void initSchema (MessageSerialization ser, String ns)
+    {
         switch(ser.getIntValue())
         {
             case 0: 
@@ -384,15 +377,76 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
             case 1: 
                     LOG.info("load schema from classpath  ...");
                     
-                    schema = new Schema.Parser().parse(loadAvroSchemaAsString(avroSchemaNameSpace));
+                    schema = new Schema.Parser().parse(loadAvroSchemaAsString(ns));
                     LOG.info("schema loaded.");
                     break;
-             default: 
-                    throw new Exception("Unrecognised message serialization type " + ser.getIntValue()+". Kafka producer is not intialised.");
+            default: 
+                    throw new IllegalArgumentException("Unrecognised message serialization type " + ser.getIntValue()+". Kafka producer is not intialised.");
         }
-
-        LOG.info("creating ProducerConfig instance...");
-        return new ProducerConfig(props);
+    }
+    
+    /**
+     * set kafka producer type property
+     * @param type
+     * @param props 
+     */
+    private static void setProducerTypeProp (KafkaProducerType type, Properties props)
+    {
+        LOG.info("setting producer type property ...");
+        switch (type.getIntValue()){
+            case 0: props.put(""+Constants.PROP_PRODUCER_TYPE, "sync");
+                LOG.info("producer.type is set as sync");
+                break;
+            case 1: props.put(""+Constants.PROP_PRODUCER_TYPE, "async");
+                LOG.info("producer.type is set as async");
+                break;
+            default: throw new IllegalArgumentException(String.format("Unrecognised producer type %d Kafka producer is not intialised.", type.getIntValue()));
+        }
+    }
+    
+    /**
+     * set compression type property
+     * @param type
+     * @param props 
+     */
+    private static void setCompressionTypeProp(CompressionType type, Properties props)
+    {
+        LOG.info("setting compression codec property ...");
+        switch(type.getIntValue())
+        {
+            case 0: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "none");
+                    break;
+            case 1: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "gzip");
+                    break;
+            case 2: props.put(""+Constants.PROP_PRODUCER_COMPRESSION_CODEC, "snappy");
+                    break;
+            default: throw new IllegalArgumentException("Unrecognised/unsupported compression encoding " + type.getIntValue()+". Kafka producer is not intialised.");
+        }
+    }
+    
+    /**
+     * check validity of kafka producer configurations
+     * @param configuration 
+     */
+    private static void checkConfigValidity(KafkaProducerConfig configuration)
+    {
+        boolean avroNsDefined = configuration.getAvroSchemaNamespace() != null;
+        if (!avroNsDefined) {
+            throw new IllegalArgumentException("Kafka producer is not initialised due to undefined 'avro-schema-namespace'.");
+        }
+        
+        boolean brokerListDefined = configuration.getKafkaBrokerList()!=null;
+        if (!brokerListDefined) {
+            throw new IllegalArgumentException("Kafka producer is not initialised due to undefined 'kafka-broker-list'.");
+        }
+        boolean compressionTypeDefined = configuration.getCompressionType()!=null;
+        if (!compressionTypeDefined) {
+            throw new IllegalArgumentException("Kafka producer is not initialised due to undefined 'compression-type'.");
+        }
+        boolean msgSerializationDefined = configuration.getMessageSerialization()!=null;
+        if (!msgSerializationDefined) {
+            throw new IllegalArgumentException("Kafka producer is not initialised due to undefined 'message-serialization'.");
+        }
     }
     
     /**
@@ -428,13 +482,13 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
      * @return XML Document
      * @throws Exception 
      */
-    private static Document loadXmlFromString (String xml) throws Exception
+    private static Document loadXmlFromString (String xml) throws ParserConfigurationException, SAXException, IOException 
     {
         DocumentBuilderFactory fac = DocumentBuilderFactory.newInstance();
         fac.setNamespaceAware(false);
-        DocumentBuilder builder = fac.newDocumentBuilder();
-        Document doc = builder.parse(new ByteArrayInputStream(xml.getBytes()));
-        return doc;
+        DocumentBuilder builder;
+        builder = fac.newDocumentBuilder();
+        return builder.parse(new ByteArrayInputStream(xml.getBytes()));
     }
     
     /**
@@ -444,7 +498,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
      * @return
      * @throws Exception 
      */
-    private String evaluate (String payload, String xpathStmt) throws Exception
+    private String evaluate (String payload, String xpathStmt) throws XPathExpressionException, ParserConfigurationException, SAXException, IOException
     {
         String result = null;
         
@@ -452,7 +506,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
 
         XPath xpath = XPathFactory.newInstance().newXPath();
         NodeList nodeList = (NodeList) xpath.evaluate(xpathStmt, doc, XPathConstants.NODESET);
-        System.out.println(nodeList.getLength());
+        
         if (nodeList.getLength()>0)
         {
             Node node = nodeList.item(0);
@@ -468,11 +522,11 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
      * @return avro schema
      * @throws Exception 
      */
-    private static String loadAvroSchemaAsString (String namespace) throws Exception
+    private static String loadAvroSchemaAsString (String namespace)
     {
         String avroSchemaStr;
         StringBuilder sb = new StringBuilder("");
-        InputStream is = KafkaUserAgentImpl.class.getClassLoader().getResourceAsStream(avroSchema);
+        InputStream is = KafkaUserAgentImpl.class.getClassLoader().getResourceAsStream(AVRO_SCHEMA);
         try (Scanner scanner = new Scanner(is)) {
             while (scanner.hasNextLine())
             {

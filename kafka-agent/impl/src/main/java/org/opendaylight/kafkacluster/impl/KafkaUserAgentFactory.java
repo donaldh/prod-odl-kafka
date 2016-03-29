@@ -28,10 +28,10 @@ public class KafkaUserAgentFactory implements DataTreeChangeListener<KafkaProduc
     
     private final ListenerRegistration<KafkaUserAgentFactory> kafkaProducerConfigReg;
     
-    private final InstanceIdentifier<KafkaProducerConfig> KAFKA_PRODUCER_CONFIG_IID = InstanceIdentifier.builder(KafkaProducerConfig.class).build();
-    private final DataTreeIdentifier<KafkaProducerConfig> KAFKA_CONFIG_PATH = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, KAFKA_PRODUCER_CONFIG_IID);
+    private static final InstanceIdentifier<KafkaProducerConfig> KAFKA_PRODUCER_CONFIG_IID = InstanceIdentifier.builder(KafkaProducerConfig.class).build();
+    private static final DataTreeIdentifier<KafkaProducerConfig> KAFKA_CONFIG_PATH = new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, KAFKA_PRODUCER_CONFIG_IID);
     
-    private DataBroker dataBroker; //SAL data broker service
+    //private final DataBroker dataBroker; //SAL data broker service
     private DOMNotificationService notificationService; //notification service
     
     private KafkaUserAgentImpl kafkaUserAgent; //singleton kafka user agent
@@ -47,9 +47,9 @@ public class KafkaUserAgentFactory implements DataTreeChangeListener<KafkaProduc
         {
             LOG.debug("in KafkaUserAgentFactory()");
         }
-        this.dataBroker = Preconditions.checkNotNull(broker, "broker");
+        Preconditions.checkNotNull(broker, "broker");
         
-        this.notificationService = Preconditions.checkNotNull(notifyService, "notifyService");
+        notificationService = Preconditions.checkNotNull(notifyService, "notifyService");
         
         //register as data change listener to data broker
         kafkaProducerConfigReg = broker.registerDataTreeChangeListener(KAFKA_CONFIG_PATH, this);
@@ -63,6 +63,7 @@ public class KafkaUserAgentFactory implements DataTreeChangeListener<KafkaProduc
         }
         kafkaUserAgent.close();
         kafkaProducerConfigReg.close();
+        
     }
 
     

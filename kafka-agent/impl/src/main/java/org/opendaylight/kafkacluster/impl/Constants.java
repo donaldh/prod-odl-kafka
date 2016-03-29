@@ -7,7 +7,9 @@ package org.opendaylight.kafkacluster.impl;
  *
  * @author Xiaoyu Chen
  */
-public interface Constants {
+public final class Constants {
+    
+    
     
     public static final String PROP_SERIALIZATION               = "message.serialization";
     public static final String STR_SERIALIZATION_RAW            = "raw";
@@ -59,5 +61,8 @@ public interface Constants {
     // Internal code config
     public static final Integer MAIN_THREAD_SLEEP_INT           = 10000;
     public static final Integer TCP_THREAD_SLEEP_INT            = 1000;
+    
+    
+    private Constants(){}
     
 }
