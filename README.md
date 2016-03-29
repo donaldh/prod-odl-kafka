@@ -1,9 +1,16 @@
-# prod-odl-kafka (for Kafka version 0.8 or lower)
-## Overview
-`prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster. The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint.
+* [Overview](#overview)
+* [Installation](#api-documentation)
+* [Configurations](#configurations)
+* [Integration tests](#integration tests)
+
+
+# Overview #
+`prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster. The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
+<img src="overview.png" alt="overview" height="400">
 
 The `prod-odl-kafka` has been development using Lithium maven artetype and tested against ODL Lithium 0.3.* releases (i.e. Lithium SR1, SR2, SR3, and SR4). 
 
+# Installation #
 
 ###### Step 1: Clone source code
 ```
@@ -93,7 +100,7 @@ odl-kafka-agent                   | 1.0.0-Lithium    | x         | odl-kafka-age
 odl-kafka-agent-rest              | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent :: REST               
 odl-kafka-agent-ui                | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent :: UI 
 ```
-## Configurations
+# Configurations #
 Kafka plugin needs to be configured before starting consuming ETB messages. The list of configuration parameters are given below.
 
 
@@ -112,9 +119,11 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 |message-host-ip-xpath|XPath statement used to extract host-ip value from ODL message payload (if not set, default-host-ip value is used).|string|//hostIP|default-host-ip value if not set|No|
 |message-source-xpath| XPath statement used to extract message source value|	string	|//src|	default-message-source value if set	|No |
 
-## Test with local Kafka cluster and "Hello World" event source
+# Integration tests #
 
-In order to demonstrate how `prod-odl-kafka` works, the HWEventSource project (https://github.com/opendaylight/coretutorials/tree/master/hweventsource) was used. You will need to follow the instructions to clone and build `HWEventSource` project, and make sure the implementation's build file is configured with appropriate Lithium version as you just did for `prod-odl-kafka` plugin. 
+In order to demonstrate how `prod-odl-kafka` works, the HWEventSource project (https://github.com/opendaylight/coretutorials/tree/master/hweventsource) was used. You will need to follow the instructions to clone and build `HWEventSource` project, and make sure the implementation's build file is configured with appropriate Lithium version as you just did for `prod-odl-kafka` plugin. The following diagram shows the details of the integration tests.
+
+<img src="integration-test.png" alt="integration-test" height="400">
 
 ###### build `hweventsource` project
 ```
