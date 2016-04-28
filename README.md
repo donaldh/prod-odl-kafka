@@ -77,10 +77,10 @@ and '[cmd] --help' for help on a specific command.
 Hit '<ctrl-d>' or type 'system:shutdown' or 'logout' to shutdown OpenDaylight.
 
 opendaylight-user@root>feature:list | grep 'kafka'
-odl-kafka-agent-api               | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent :: api                
-odl-kafka-agent                   | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent                       
-odl-kafka-agent-rest              | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent :: REST               
-odl-kafka-agent-ui                | 1.0.0-Lithium     | x         | odl-kafka-agent-1.0.0-Lithium            | OpenDaylight :: kafka-agent :: UI                 
+odl-kafka-agent-api               | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent :: api                
+odl-kafka-agent                   | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent                       
+odl-kafka-agent-rest              | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent :: REST               
+odl-kafka-agent-ui                | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent :: UI                 
 opendaylight-user@root>
 ```
 
@@ -95,11 +95,12 @@ $sudo cp kafka-agent/features/target/kafka-agent-features-1.0.0-Lithium.kar /opt
 `prod-odl-kafka` plugin should then be automatically deployed to the ODL container. To verify the success of the deployment, run `feature:list | grep 'kafka' ` command from ODL console, and you should see outputs as below.
 
 ```
-opendaylight-user@root>feature:list | grep 'kafka-agent'
-odl-kafka-agent-api               | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent :: api                
-odl-kafka-agent                   | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent                       
-odl-kafka-agent-rest              | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent :: REST               
-odl-kafka-agent-ui                | 1.0.0-Lithium    | x         | odl-kafka-agent-1.0.0-Lithium        | OpenDaylight :: kafka-agent :: UI 
+opendaylight-user@root>feature:list | grep 'kafka'
+odl-kafka-agent-api               | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent :: api                
+odl-kafka-agent                   | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent                       
+odl-kafka-agent-rest              | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent :: REST               
+odl-kafka-agent-ui                | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent :: UI                 
+opendaylight-user@root>
 ```
 # Configurations #
 Kafka plugin needs to be configured before starting consuming ETB messages. The list of configuration parameters are given below.
@@ -141,11 +142,12 @@ $cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /opt/di
 
 You can verify the deployment of `hweventsource` modules by running the command from ODL console as follows:
 ```
-opendaylight-user@root>feature:list | grep 'hweventsource'
-odl-hweventsource-api             | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: api              
-odl-hweventsource                 | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource                     
-odl-hweventsource-rest            | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: REST             
-odl-hweventsource-ui              | 1.0-Lithium      | x         | odl-hweventsource-1.0-Lithium        | OpenDaylight :: hweventsource :: UI               
+opendaylight-user@root>feature:list | grep 'hwevent'
+odl-hweventsource-api             | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource :: api              
+odl-hweventsource                 | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource                     
+odl-hweventsource-rest            | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource :: REST             
+odl-hweventsource-ui              | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource :: UI               
+odl-hweventsource-uagent          | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource :: UserAgent                
 ```
 
 ###### Start local kafka cluster
