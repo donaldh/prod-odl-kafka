@@ -1,4 +1,5 @@
 * [Overview](#overview)
+* [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Configurations](#configurations)
 * [Integration tests](#integration-tests)
