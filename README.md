@@ -11,6 +11,10 @@
 
 The `prod-odl-kafka` has been development using Lithium maven artetype and tested against ODL Lithium 0.3.* releases (i.e. Lithium SR1, SR2, SR3, and SR4). 
 
+# Prerequisites #
+ * Java version 8
+ * Maven version 3.3.*
+
 # Installation #
 
 ###### Step 1: Clone source code
@@ -28,7 +32,9 @@ cp -n ~/.m2/settings.xml{,.orig} ; \
 wget -q -O - https://raw.githubusercontent.com/opendaylight/odlparent/master/settings.xml > ~/.m2/settings.xml
 ```
 
-You will also need to check your target Lithium container's version and edit the `<parent>` section of the `odl-kafka-plugin/kafka-agent/impl/pom.xml` file. Below is an example that builds for `Lithium-SR3` release. 
+If this plugin is supposed to be deployed on a pre-existed ODL container (see step 4), you will also need to replace the '<version>' value with the release version of your target ODL container. [NOTE: at the moment only Lithium releases have been tested and supported] 
+
+This can be done by editing the `<parent>` section of the `prod-odl-kafka/kafka-agent/impl/pom.xml` file. Below is an example that builds for `Lithium-SR3` release. 
 
 ```
 <parent>
@@ -42,14 +48,7 @@ You will also need to check your target Lithium container's version and edit the
 Now go to `kafka-agent` directory and build.
 
 ```
-$cd ../kafka-agent 
-kafka-agent$mvn clean install -Dcheckstyle.skip=true
-```
-
-Run following commands instead if you would like to skip tests:
-
-```
-$cd ../kafka-agent 
+$cd kafka-agent 
 kafka-agent$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
 
@@ -84,7 +83,7 @@ odl-kafka-agent-ui                | 2.0.1-Lithium     | x         | odl-kafka-ag
 opendaylight-user@root>
 ```
 
-######Step 4: Deploy to existed ODL container
+######Deploy to pre-existed ODL container (optional)
 
 If you have an existed ODL container, simply copy the `.kar` file to the `deploy` directory. See example below.
 
@@ -122,25 +121,29 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 
 # Integration tests #
 
-In order to demonstrate how `prod-odl-kafka` works, the HWEventSource project (https://github.com/opendaylight/coretutorials/tree/master/hweventsource) was used. You will need to follow the instructions to clone and build `HWEventSource` project, and make sure the implementation's build file is configured with appropriate Lithium version as you just did for `prod-odl-kafka` plugin. The following diagram shows the details of the integration tests.
+In order to demonstrate how `prod-odl-kafka` works, the HWEventSource project (https://github.com/opendaylight/coretutorials/tree/master/hweventsource) was used. Make sure you use a Lithium release that matches target ODL container. For example use this release (https://github.com/opendaylight/coretutorials/releases/tag/release%2Flithium-sr3) in consistence with the maven snippet in step 2. 
+
+The following diagram shows the details of the integration tests.
 
 <img src="integration-test.png" alt="integration-test" height="400">
 
 ###### build `hweventsource` project
 ```
-$cd hweventsource/
+$cd coretutorials/hweventsource/
 hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
 
 ###### deploy `hweventsource` southbound event source
 
-The deployment of `hweventsource` is as simple as copy the .kar file to a target ODL container, either the one comes with `prod-odl-agent` or a standalone distribution container. 
+The deployment of `hweventsource` is as simple as copy the .kar file to a target ODL container, either the one comes with `prod-odl-agent` or a standalone distribution container. For example:
 
 ```
 $cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /opt/distribution-karaf-0.3.3-Lithium-SR3/deploy/
 ```
 
-You can verify the deployment of `hweventsource` modules by running the command from ODL console as follows:
+[NOTE: make sure you start ODL container as a sudoer user", as hwevent source requires create /var/tmp/test-logs folder or create a fold with appropriate write permissions.]
+
+Once deployed successfully, you should be able to verify the deployment of `hweventsource` modules by running the command from ODL console as follows:
 ```
 opendaylight-user@root>feature:list | grep 'hwevent'
 odl-hweventsource-api             | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource :: api              
