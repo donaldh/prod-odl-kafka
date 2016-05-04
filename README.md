@@ -8,7 +8,7 @@
 # Overview #
 `prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster (version 0.9 +). The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
 
-<img src="overview.png" alt="overview-png" height="400">
+![Overview](images/odl-overview.png)
 
 The `prod-odl-kafka` has been development using Lithium maven artetype and tested against ODL Lithium 0.3.* releases (i.e. Lithium SR1, SR2, SR3, and SR4). 
 
@@ -126,7 +126,7 @@ In order to demonstrate how `prod-odl-kafka` works, the HWEventSource project (h
 
 The following diagram shows the details of the integration tests.
 
-<img src="integration-test.png" alt="integration-test" height="400">
+![integration test](images/odl-integration-test.png)
 
 ###### build `hweventsource` project
 ```
