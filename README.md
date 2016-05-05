@@ -1,12 +1,14 @@
+# OpenDaylight Kafka plugin
+
 * [Overview](#overview)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Configurations](#configurations)
 * [Integration tests](#integration-tests)
 
-
 # Overview #
-`prod-odl-kafka` is an Opendaylight (ODL)  northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster (version 0.9 +). The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
+
+`prod-odl-kafka` is an OpenDaylight (ODL) northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster (version 0.9 +). The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
 
 ![Overview](images/odl-overview.png)
 
@@ -18,14 +20,14 @@ The `prod-odl-kafka` has been development using Lithium maven artetype and teste
 
 # Installation #
 
-###### Step 1: Clone source code
+### Step 1: Clone source code
 ```
 $git clone https://cto-github.cisco.com/CTAO-Team6-Analytics/prod-odl-kafka.git
 ```
 
-###### Step 2: Build from source
+### Step 2: Build from source
 
-In order to make the "build" process work, you will need OpenDayLight dependencies, which are organised as multiple inter-dependent projects within OpenDayLight repositories outside of Maven Central. This is achieved by placing the OpenDayLight `settings.xml` file into your local maven repository (see https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup for more details).
+In order to make the "build" process work, you will need OpenDaylight dependencies, which are organised as multiple inter-dependent projects within OpenDaylight repositories outside of Maven Central. This is achieved by placing the OpenDaylight `settings.xml` file into your local maven repository (see https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup for more details).
 
 ```
 # Shortcut command for grabbing settings.xml
@@ -53,7 +55,7 @@ $cd kafka-agent
 kafka-agent$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
 
-######Step 3: Start Karaf container
+###Step 3: Start Karaf container
 
 Start karaf container by running the following command.
 
@@ -84,7 +86,7 @@ odl-kafka-agent-ui                | 2.0.1-Lithium     | x         | odl-kafka-ag
 opendaylight-user@root>
 ```
 
-######Deploy to pre-existed ODL container (optional)
+### Deploy to pre-existed ODL container (optional)
 
 If you have an existed ODL container, simply copy the `.kar` file to the `deploy` directory. See example below.
 
@@ -102,7 +104,9 @@ odl-kafka-agent-rest              | 2.0.1-Lithium     | x         | odl-kafka-ag
 odl-kafka-agent-ui                | 2.0.1-Lithium     | x         | odl-kafka-agent-2.0.1-Lithium            | OpenDaylight :: kafka-agent :: UI                 
 opendaylight-user@root>
 ```
+
 # Configurations #
+
 Kafka plugin needs to be configured before starting consuming ETB messages. The list of configuration parameters are given below.
 
 
@@ -122,19 +126,20 @@ Kafka plugin needs to be configured before starting consuming ETB messages. The 
 
 # Integration tests #
 
-In order to demonstrate how `prod-odl-kafka` works, the HWEventSource project (https://github.com/opendaylight/coretutorials/tree/master/hweventsource) was used. Make sure you use a Lithium release that matches target ODL container. For example use this release (https://github.com/opendaylight/coretutorials/releases/tag/release%2Flithium-sr3) in consistence with the maven snippet in step 2. 
+In order to demonstrate how `prod-odl-kafka` works, the [HWEventSource project](https://github.com/opendaylight/coretutorials/tree/master/hweventsource) was used. Make sure you use a Lithium release that matches target ODL container. For example use [this release](https://github.com/opendaylight/coretutorials/releases/tag/release%2Flithium-sr3) in consistence with the maven snippet in step 2. 
 
 The following diagram shows the details of the integration tests.
 
 ![integration test](images/odl-integration-test.png)
 
-###### build `hweventsource` project
+### build `hweventsource` project
+
 ```
 $cd coretutorials/hweventsource/
 hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
 
-###### deploy `hweventsource` southbound event source
+### deploy `hweventsource` southbound event source
 
 The deployment of `hweventsource` is as simple as copy the .kar file to a target ODL container, either the one comes with `prod-odl-agent` or a standalone distribution container. For example:
 
@@ -142,9 +147,10 @@ The deployment of `hweventsource` is as simple as copy the .kar file to a target
 $cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /opt/distribution-karaf-0.3.3-Lithium-SR3/deploy/
 ```
 
-[NOTE: make sure you start ODL container as a sudoer user", as hwevent source requires create /var/tmp/test-logs folder or create a fold with appropriate write permissions.]
+**NOTE:** make sure you start ODL container as a sudoer user, as hwevent source requires create /var/tmp/test-logs folder or create a fold with appropriate write permissions.
 
 Once deployed successfully, you should be able to verify the deployment of `hweventsource` modules by running the command from ODL console as follows:
+
 ```
 opendaylight-user@root>feature:list | grep 'hwevent'
 odl-hweventsource-api             | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource :: api              
@@ -154,7 +160,7 @@ odl-hweventsource-ui              | 1.0.3-Lithium-SR3 | x         | odl-hwevents
 odl-hweventsource-uagent          | 1.0.3-Lithium-SR3 | x         | odl-hweventsource-1.0.3-Lithium-SR3      | OpenDaylight :: hweventsource :: UserAgent                
 ```
 
-###### Start local kafka cluster
+### Start local kafka cluster
 
 ```
 $cd $KAFKA_HOME
@@ -169,7 +175,8 @@ Start a consumer and listens to the topic
 ```
 $bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odl-test --from-beginning
 ```
-###### Congifure `prod-odl-kafka` plugin
+
+### Congifure `prod-odl-kafka` plugin
 
 `prod-odl-kafka` is configured using RESTCONF api.
 
@@ -190,12 +197,16 @@ You should see the output as:
 {"kafka-producer-config":{"message-serialization":"raw","kafka-broker-list":"127.0.0.1:9092","avro-schema-namespace":"com.example.project","compression-type":"none","kafka-topic":"odl-test"}}
 ```
 
-###### Start "hello world" event source to generate some messages.
+### Start "hello world" event source to generate some messages.
+
 Run the following curl command to trigger the sample event source. 
+
 ```
 $curl --user admin:admin --request POST http://localhost:8181/restconf/operations/event-aggregator:create-topic --header "Content-Type:application/json" --data '{ "event-aggregator:input": {"notification-pattern": "**", "node-id-pattern":"*"}}'
 ```
+
 If successful, you should be able to see a topic-id is generated, for exmaple:
+
 ```
 {"output":{"topic-id":"d48ac918-d8d3-4425-8945-0c7d98aa29a0"}}
 ```
@@ -209,10 +220,3 @@ Meanwhile keep an eye on the Kafka consumer console, you should see messages str
 <?xml version="1.0" encoding="UTF-8"?><payload xmlns="urn:cisco:params:xml:ns:yang:messagebus:eventaggregator"><SampleEventSourceNotification><Source>EventSourceSample01</Source><Message>Hello World [Mon Sep 28 14:37:58 BST 2015]</Message></SampleEventSourceNotification></payload>
 ...
 ```
-
-
-
-
-   
-
-
