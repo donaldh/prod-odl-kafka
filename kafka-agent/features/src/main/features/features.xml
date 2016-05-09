@@ -11,11 +11,8 @@ Unless required by applicable law or agreed to separately in writing, software d
 License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
 either express or implied.
 
-Name:       Kafka-agent
-Purpose:    Kafka agent POM file
-Author:     PaNDA team
-Created:    07-Sept-2015
-Updated:    09-May-2015
+Name:       Kafka-agent-feature
+Purpose:    Kafka agent feature POM file
 -->
 
 <features name="odl-kafka-agent-${project.version}" xmlns="http://karaf.apache.org/xmlns/features/v1.2.0"
