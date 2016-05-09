@@ -11,11 +11,8 @@
 * either express or implied.
 * 
 
-* Name:       Kafka-agent
-* Purpose:    Kafka agent POM file
-* Author:     PaNDA team
-* Created:    07-Sept-2015
-* Updated:    09-May-2015
+* Name:       record.avsc
+* Purpose:    generic avro schema 
 *************************************************************************************************************/
 
 {"namespace": "%s",

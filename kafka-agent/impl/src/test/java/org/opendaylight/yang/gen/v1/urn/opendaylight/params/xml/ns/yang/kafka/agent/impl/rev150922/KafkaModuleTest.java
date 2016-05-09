@@ -11,11 +11,8 @@
 * either express or implied.
 * 
 
-* Name:       Kafka-agent
-* Purpose:    Kafka agent POM file
-* Author:     PaNDA team
-* Created:    07-Sept-2015
-* Updated:    09-May-2015
+* Name:       KafkaModuleFactory.java
+* Purpose:    Kafka module factory test case
 *************************************************************************************************************/
 package org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.kafka.agent.impl.rev150922;
 
