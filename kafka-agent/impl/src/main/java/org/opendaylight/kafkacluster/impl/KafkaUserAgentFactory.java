@@ -11,11 +11,8 @@
 * either express or implied.
 * 
 
-* Name:       Kafka-agent
-* Purpose:    Kafka agent POM file
-* Author:     PaNDA team
-* Created:    07-Sept-2015
-* Updated:    09-May-2015
+* Name:       KafkaUserAgentFactory.java
+* Purpose:    Northbound kafka user agent factory class
 *************************************************************************************************************/
 
 package org.opendaylight.kafkacluster.impl;

@@ -11,11 +11,8 @@
 * either express or implied.
 * 
 
-* Name:       Kafka-agent
-* Purpose:    Kafka agent POM file
-* Author:     PaNDA team
-* Created:    07-Sept-2015
-* Updated:    09-May-2015
+* Name:       Constants.java
+* Purpose:    final class maintains a list of constants
 *************************************************************************************************************/
 
 package org.opendaylight.kafkacluster.impl;
