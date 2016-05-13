@@ -1,4 +1,4 @@
-# OpenDayLight Kafka Plugin
+# OpenDaylight Kafka Plugin
 
 * [Overview](#overview)
 * [Prerequisites](#prerequisites)
