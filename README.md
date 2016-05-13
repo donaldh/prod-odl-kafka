@@ -8,26 +8,29 @@
 * [Send data to PaNDA](#send-data-to-panda)
 
 # Overview #
-prod-odl-kafka is an OpenDaylight (ODL) northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster (version 0.9 +). The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of prod-odl-kafka is shown as the diagram below.
+
+`prod-odl-kafka` is an OpenDaylight (ODL) northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster (version 0.9 +). The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown in the diagram below.
 
 ![Overview](images/odl-overview.png)
 
 The `prod-odl-kafka` has been development using Lithium maven artetype and tested against ODL Lithium 0.3.* releases (i.e. Lithium SR1, SR2, SR3, and SR4). 
 
 # Prerequisites #
+
  * Java version 8
  * Maven version 3.3.*
 
 # Installation #
 
 ### Step 1: Clone source code
+
 ```
 $git clone https://cto-github.cisco.com/CTAO-Team6-Analytics/prod-odl-kafka.git
 ```
 
 ### Step 2: Build from source
 
-In order to make the "build" process work, you will need OpenDaylight dependencies, which are organised as multiple inter-dependent projects within OpenDaylight repositories outside of Maven Central. This is achieved by placing the OpenDaylight `settings.xml` file into your local maven repository (see https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup for more details).
+In order to make the "build" process work, you will need OpenDaylight dependencies, which are organised as multiple inter-dependent projects within OpenDaylight repositories outside of Maven Central. This is achieved by placing the OpenDaylight `settings.xml` file into your local maven repository (see the [development environment setup guide](https://wiki.opendaylight.org/view/GettingStarted:Development_Environment_Setup) for more details).
 
 ```
 # Shortcut command for grabbing settings.xml
