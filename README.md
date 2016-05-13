@@ -223,4 +223,4 @@ Meanwhile keep an eye on the Kafka consumer console, you should see messages str
 
 # Send data to PaNDA #
 
-Sending data to a launch PaNDA cluster is similar to [Integration tests](#integration-tests), except that you will need to change `prod-odl-kafka` configurations linking to kafka endpoints of a target PaNDA cluster. 
+Sending data to a launch PaNDA cluster is similar to [Integration tests](#integration-tests), except that you will need to [change `prod-odl-kafka` configurations](#congifure-prod-odl-kafka-plugin) linking to kafka endpoints of a target PaNDA cluster. 
