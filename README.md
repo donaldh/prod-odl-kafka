@@ -1,14 +1,14 @@
-# OpenDaylight Kafka plugin
+# Integrating OpenDayLight
 
 * [Overview](#overview)
 * [Prerequisites](#prerequisites)
 * [Installation](#installation)
 * [Configurations](#configurations)
 * [Integration tests](#integration-tests)
+* [Send data to PaNDA](#send-data-to-panda)
 
 # Overview #
-
-`prod-odl-kafka` is an OpenDaylight (ODL) northbound plugin that allows real-time or near real-time event or telemetry data streaming into a kafka cluster (version 0.9 +). The key design goal of this plugin is to provide a genenric and configurable data connector that subscribes to southbound event source(s) via ODL's Event Topic Broker (ETB) on one side, and forward notifications to a Kafka endpoint. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
+Integrating OpenDayLight (ODL) to PaNDA can be done via prod-odl-kafka, an ODL northbound plugin that streaming Event-Topic Broker (ETB) events to PaNDA cluster. The high-level architecture of `prod-odl-kafka` is shown as the diagram below.
 
 ![Overview](images/odl-overview.png)
 
@@ -220,3 +220,7 @@ Meanwhile keep an eye on the Kafka consumer console, you should see messages str
 <?xml version="1.0" encoding="UTF-8"?><payload xmlns="urn:cisco:params:xml:ns:yang:messagebus:eventaggregator"><SampleEventSourceNotification><Source>EventSourceSample01</Source><Message>Hello World [Mon Sep 28 14:37:58 BST 2015]</Message></SampleEventSourceNotification></payload>
 ...
 ```
+
+# Send data to PaNDA #
+
+Sending data to a launch PaNDA cluster is similar to [Integration tests](#integration-tests), except that you will need to change `prod-odl-kafka` configurations linking to kafka endpoints of a target PaNDA cluster. 
