@@ -19,6 +19,8 @@ The `prod-odl-kafka` has been development using Lithium maven artetype and teste
 
  * Java version 8
  * Maven version 3.3.*
+ * Apache Kafka 0.9.*
+ * OpenDayLight Lithium 0.3.*
 
 # Installation #
 
