@@ -135,6 +135,13 @@ The following diagram shows the details of the integration tests.
 
 ![integration test](images/odl-integration-test.png)
 
+### download `hweventsource` Lithium SR3 release
+
+```
+$wget https://github.com/opendaylight/coretutorials/archive/release/lithium-sr3.tar.gz
+$tar zxvf lithium-sr3.tar.gz
+```
+
 ### build `hweventsource` project
 
 ```
