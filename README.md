@@ -38,7 +38,7 @@ cp -n ~/.m2/settings.xml{,.orig} ; \
 wget -q -O - https://raw.githubusercontent.com/opendaylight/odlparent/master/settings.xml > ~/.m2/settings.xml
 ```
 
-If this plugin is supposed to be deployed on a pre-existed ODL container (see step 4), you will also need to replace the '<version>' value with the release version of your target ODL container. [NOTE: at the moment only Lithium releases have been tested and supported] 
+If this plugin is supposed to be [deployed on a pre-existed ODL container](#deploy-to-pre-existed-odl-container-optional), you will also need to replace the '<version>' value with the release version of your target ODL container. [NOTE: at the moment only Lithium releases have been tested and supported] 
 
 This can be done by editing the `<parent>` section of the `prod-odl-kafka/kafka-agent/impl/pom.xml` file. Below is an example that builds for `Lithium-SR3` release. 
 
