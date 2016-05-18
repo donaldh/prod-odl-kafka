@@ -97,7 +97,7 @@ module kafka-agent {
             type string;
             description "set xpath statement to extract message source message payload";
             config true;
-            mandatory true;
+            mandatory false;
         }
         
         leaf message-host-ip-xpath {
