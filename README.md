@@ -151,10 +151,16 @@ hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 
 ### deploy `hweventsource` southbound event source
 
-The deployment of `hweventsource` is as simple as copy the .kar file to a target ODL container, either the one comes with `prod-odl-agent` or a standalone distribution container. For example:
+The deployment of `hweventsource` is as simple as copy the .kar file to a target ODL container, either the one comes with `prod-odl-agent` 
 
 ```
-$cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /opt/distribution-karaf-0.3.3-Lithium-SR3/deploy/
+$cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /path/to/prod-odl-kafka/kafka-agent/karaf/target/assembly/deploy/
+```
+
+or a standalone distribution container. For example:
+
+```
+$cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /path/to/distribution-karaf-0.3.3-Lithium-SR3/deploy/
 ```
 
 **NOTE:** make sure you start ODL container as a sudoer user, as hwevent source requires create /var/tmp/test-logs folder or create a fold with appropriate write permissions.
