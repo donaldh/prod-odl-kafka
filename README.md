@@ -165,7 +165,11 @@ or a standalone distribution container. For example:
 cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /path/to/distribution-karaf-0.3.3-Lithium-SR3/deploy/
 ```
 
-**NOTE:** make sure you start ODL container as a sudoer user, as hwevent source requires create /var/tmp/test-logs folder or create a fold with appropriate write permissions.
+**NOTE:** make sure you start ODL container as a sudoer user, as hwevent source requires us to create `/var/tmp/test-logs` folder with appropriate write permissions.
+
+    mkdir /var/tmp/test-logs
+    chmod -R 777 /var/tmp/test-logs
+    touch /var/tmp/test-logs/hweventsource-uagent-00.log
 
 Once deployed successfully, you should be able to verify the deployment of `hweventsource` modules by running the command from ODL console as follows:
 
