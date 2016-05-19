@@ -141,14 +141,14 @@ The following diagram shows the details of the integration tests.
 
 ```
 wget https://github.com/opendaylight/coretutorials/archive/release/lithium-sr3.tar.gz
-$tar zxvf lithium-sr3.tar.gz
+tar zxvf lithium-sr3.tar.gz
 ```
 
 ### build `hweventsource` project
 
 ```
 cd coretutorials/hweventsource/
-hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
+mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
 
 ### deploy `hweventsource` southbound event source
