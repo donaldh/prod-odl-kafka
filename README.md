@@ -27,7 +27,7 @@ The `prod-odl-kafka` has been development using Lithium maven artetype and teste
 ### Step 1: Clone source code
 
 ```
-$git clone https://cto-github.cisco.com/CTAO-Team6-Analytics/prod-odl-kafka.git
+git clone https://cto-github.cisco.com/CTAO-Team6-Analytics/prod-odl-kafka.git
 ```
 
 ### Step 2: Build from source
@@ -56,8 +56,8 @@ This can be done by editing the `<parent>` section of the `prod-odl-kafka/kafka-
 Now go to `kafka-agent` directory and build.
 
 ```
-$cd kafka-agent 
-kafka-agent$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
+cd kafka-agent 
+mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
 
 ###Step 3: Start Karaf container
@@ -65,7 +65,7 @@ kafka-agent$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 Start karaf container by running the following command.
 
 ```
-$./karaf/target/assembly/bin/karaf 
+./karaf/target/assembly/bin/karaf 
 ```
 
 Once it starts successfully, you should be able to check all the features are deployed automatically. 
@@ -96,7 +96,7 @@ opendaylight-user@root>
 If you have an existed ODL container, simply copy the `.kar` file to the `deploy` directory. See example below.
 
 ```
-$sudo cp kafka-agent/features/target/kafka-agent-features-1.0.0-Lithium.kar /opt/distribution-karaf-0.3.3-Lithium-SR3/deploy/
+sudo cp kafka-agent/features/target/kafka-agent-features-1.0.0-Lithium.kar /opt/distribution-karaf-0.3.3-Lithium-SR3/deploy/
 ```
 
 `prod-odl-kafka` plugin should then be automatically deployed to the ODL container. To verify the success of the deployment, run `feature:list | grep 'kafka' ` command from ODL console, and you should see outputs as below.
@@ -140,14 +140,14 @@ The following diagram shows the details of the integration tests.
 ### download `hweventsource` Lithium SR3 release
 
 ```
-$wget https://github.com/opendaylight/coretutorials/archive/release/lithium-sr3.tar.gz
+wget https://github.com/opendaylight/coretutorials/archive/release/lithium-sr3.tar.gz
 $tar zxvf lithium-sr3.tar.gz
 ```
 
 ### build `hweventsource` project
 
 ```
-$cd coretutorials/hweventsource/
+cd coretutorials/hweventsource/
 hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 ```
 
@@ -156,13 +156,13 @@ hweventsource$mvn clean install -Dcheckstyle.skip=true -DskipTests=true
 The deployment of `hweventsource` is as simple as copy the .kar file to a target ODL container, either the one comes with `prod-odl-agent` 
 
 ```
-$cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /path/to/prod-odl-kafka/kafka-agent/karaf/target/assembly/deploy/
+cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /path/to/prod-odl-kafka/kafka-agent/karaf/target/assembly/deploy/
 ```
 
 or a standalone distribution container. For example:
 
 ```
-$cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /path/to/distribution-karaf-0.3.3-Lithium-SR3/deploy/
+cp hweventsource/features/target/hweventsource-features-1.0-Lithium.kar /path/to/distribution-karaf-0.3.3-Lithium-SR3/deploy/
 ```
 
 **NOTE:** make sure you start ODL container as a sudoer user, as hwevent source requires create /var/tmp/test-logs folder or create a fold with appropriate write permissions.
@@ -181,17 +181,17 @@ odl-hweventsource-uagent          | 1.0.3-Lithium-SR3 | x         | odl-hwevents
 ### Start local kafka cluster
 
 ```
-$cd $KAFKA_HOME
-$bin/zookeeper-server-start.sh config/zookeeper.properties
-$bin/kafka-server-start.sh config/server.properties
+cd $KAFKA_HOME
+bin/zookeeper-server-start.sh config/zookeeper.properties
+bin/kafka-server-start.sh config/server.properties
 ```
 Create a 'odl-test' topic
 ```
-$bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic odl-test
+bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic odl-test
 ```
 Start a consumer and listens to the topic
 ```
-$bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odl-test --from-beginning
+bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odl-test --from-beginning
 ```
 
 ### Congifure `prod-odl-kafka` plugin
@@ -199,7 +199,7 @@ $bin/kafka-console-consumer.sh --zookeeper localhost:2181 --topic odl-test --fro
 `prod-odl-kafka` is configured using RESTCONF api.
 
 ```
-$ curl --user admin:admin \ 
+ curl --user admin:admin \ 
        --request PUT http://localhost:8080/restconf/config/kafka-agent:kafka-producer-config \
        --data '{kafka-producer-config: {kafka-broker-list: "127.0.0.1:9092", kafka-topic: "odl-test", compression-type: "none", message-serialization: "raw", avro-schema-namespace:"com.example.project"}}' \
        --header "Content-Type:application/yang.data+json"
@@ -207,7 +207,7 @@ $ curl --user admin:admin \
 To verify configurations are set properly, run:
 
 ```
-$ curl --user admin:admin --request GET http://localhost:8080/restconf/config/kafka-agent:kafka-producer-config --header "Content-Type:application/yang.data+json"
+ curl --user admin:admin --request GET http://localhost:8080/restconf/config/kafka-agent:kafka-producer-config --header "Content-Type:application/yang.data+json"
 ```
 You should see the output as:
 
@@ -220,7 +220,7 @@ You should see the output as:
 Run the following curl command to trigger the sample event source. 
 
 ```
-$curl --user admin:admin --request POST http://localhost:8181/restconf/operations/event-aggregator:create-topic --header "Content-Type:application/json" --data '{ "event-aggregator:input": {"notification-pattern": "**", "node-id-pattern":"*"}}'
+curl --user admin:admin --request POST http://localhost:8181/restconf/operations/event-aggregator:create-topic --header "Content-Type:application/json" --data '{ "event-aggregator:input": {"notification-pattern": "**", "node-id-pattern":"*"}}'
 ```
 
 If successful, you should be able to see a topic-id is generated, for exmaple:
