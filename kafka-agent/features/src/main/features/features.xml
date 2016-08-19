@@ -24,9 +24,11 @@ Purpose:    Kafka agent feature POM file
   <repository>mvn:org.opendaylight.netconf/features-netconf-connector/{{VERSION}}/xml/features</repository>
   
   <feature name='odl-kafka-agent-api' version='${project.version}' description='OpenDaylight :: kafka-agent :: api'>
+	<feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <bundle>mvn:org.opendaylight.kafkacluster/kafka-agent-api/${project.version}</bundle>
   </feature>
   <feature name='odl-kafka-agent' version='${project.version}' description='OpenDaylight :: kafka-agent'>
+	<feature version="${netconf.version}">odl-message-bus</feature>
     <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${project.version}'>odl-kafka-agent-api</feature>
     <bundle dependency='true'>mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.metrics-core/2.2.0_1</bundle>
