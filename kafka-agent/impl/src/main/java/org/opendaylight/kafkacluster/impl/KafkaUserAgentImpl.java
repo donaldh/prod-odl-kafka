@@ -180,12 +180,12 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
                 ProducerRecord<String, byte[]> message;
                 if (schema == null)
                 {
-                    LOG.info("sending data without serialization.");
+                    LOG.debug("sending data without serialization.");
                     message = new ProducerRecord<>(topic, rawdata.getBytes());
                 }
                 else
                 {
-                    LOG.info("sending data using avro serialisation.");
+                    LOG.debug("sending data using avro serialisation.");
                     message = new ProducerRecord<>(topic, encode(timestamp, hostIp, messageSource, rawdata));
                 }
                 producer.send(message);
@@ -211,17 +211,17 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         String hostIp = null;
         if (hostIpXPath != null)
         {
-            LOG.info("evaluating " + hostIpXPath + " against message payload ...");
+            LOG.debug("evaluating " + hostIpXPath + " against message payload ...");
             hostIp = this.evaluate(rawdata, hostIpXPath);
         }
 
         if (hostIp == null)
         {
-            LOG.info("not host ip xpath specified, use the ODL host ip by default");
+            LOG.debug("not host ip xpath specified, use the ODL host ip by default");
             hostIp = defaultHostIp;
 
         }
-        LOG.info(String.format("host-ip parsed: %s" , hostIp));
+        LOG.debug(String.format("host-ip parsed: %s" , hostIp));
         return hostIp;
     }
     
@@ -240,7 +240,7 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         String messageSource=null;
         if (messageSourceXPath != null)
         {
-            LOG.info(String.format("Evaluating %s against message payload...", messageSourceXPath));
+            LOG.debug(String.format("Evaluating %s against message payload...", messageSourceXPath));
             messageSource = this.evaluate(rawdata, messageSourceXPath);
         }
 
@@ -251,11 +251,11 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
 
         if (messageSource == null)
         {
-            LOG.info("no message source xpath specified or invalid xpath statement. Use the node-id by default.");
+            LOG.debug("no message source xpath specified or invalid xpath statement. Use the node-id by default.");
             final String nodeId = notification.getBody().getChild(EVENT_SOURCE_NODE).get().getValue().toString();
             messageSource = nodeId;
         }
-        LOG.info(String.format("message source parsed: %s", messageSource));
+        LOG.debug(String.format("message source parsed: %s", messageSource));
         return messageSource;
     }
     
@@ -264,18 +264,18 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
         Long timestamp = null;
         if (timestampXPath != null)
         {
-            LOG.info("evaluating " + timestampXPath + " against message payload ...");
+            LOG.debug("evaluating " + timestampXPath + " against message payload ...");
             timestamp = Long.valueOf(this.evaluate(rawdata, timestampXPath));
 
         }
 
         if (timestamp == null)
         {
-            LOG.info("no timestampe xpath specified or invalid xpath statement. Use the system time by default");
+            LOG.debug("no timestampe xpath specified or invalid xpath statement. Use the system time by default");
             timestamp = System.currentTimeMillis();
         }
 
-        LOG.info("timestamp parsed: " + timestamp);
+        LOG.debug("timestamp parsed: " + timestamp);
         
         return timestamp;
 
@@ -288,14 +288,14 @@ public class KafkaUserAgentImpl implements DOMNotificationListener, AutoCloseabl
             return true;
         }
         
-        LOG.info("topic filters are not empty; applying them now...");
+        LOG.debug("topic filters are not empty; applying them now...");
         //check topic against filter list
         if(notification.getBody().getChild(TOPIC_ID_ARG).isPresent()){
             TopicId topicId = (TopicId) notification.getBody().getChild(TOPIC_ID_ARG).get().getValue();
             if (topicId != null && registeredTopics.contains(topicId.getValue()))
             {
-                LOG.info("topic is parsed: " + topicId.getValue());
-                LOG.info("Topic accepted.");
+                LOG.debug("topic is parsed: " + topicId.getValue());
+                LOG.debug("Topic accepted.");
                 return true;
             }
         }
