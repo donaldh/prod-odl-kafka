@@ -26,7 +26,7 @@ Purpose:    Kafka agent API POM file
     <groupId>org.opendaylight.mdsal</groupId>
     <artifactId>binding-parent</artifactId>
     <!--version>${yangtools.version}</version-->
-    <version>0.9.0-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <modelVersion>4.0.0</modelVersion>

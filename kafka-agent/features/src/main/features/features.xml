@@ -22,7 +22,7 @@ Purpose:    Kafka agent feature POM file
   <repository>mvn:org.opendaylight.controller/features-mdsal/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.netconf/features-restconf/{{VERSION}}/xml/features</repository>
   <repository>mvn:org.opendaylight.netconf/features-netconf-connector/{{VERSION}}/xml/features</repository>
-  
+
   <feature name='odl-kafka-agent-api' version='${project.version}' description='OpenDaylight :: kafka-agent :: api'>
 	<feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <bundle>mvn:org.opendaylight.kafkacluster/kafka-agent-api/${project.version}</bundle>
