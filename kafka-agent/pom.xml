@@ -29,7 +29,7 @@ Updated:    09-May-2015
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>odlparent</artifactId>
-    <version>1.7.0-SNAPSHOT</version>
+    <version>1.7.2-Boron-SR2</version>
   </parent>
 
   <groupId>org.opendaylight.kafkacluster</groupId>

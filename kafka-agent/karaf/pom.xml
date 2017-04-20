@@ -30,7 +30,7 @@ Purpose:    Kafka karaf module build file
     <parent>
     <groupId>org.opendaylight.controller</groupId>
     <artifactId>karaf-parent</artifactId>
-    <version>1.7.1-SNAPSHOT</version>
+    <version>1.7.2-Boron-SR2</version>
     <relativePath/>
   </parent>
   
